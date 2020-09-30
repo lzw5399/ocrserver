@@ -25,10 +25,10 @@ func InitRouter() *gin.Engine {
 	r.Static("/assets", "./app/assets")
 
 	// APIs
-	r.GET("/", controller.IndexV2)
-	r.GET("/status", controller.StatusV2)
-	r.POST("/base64", controller.Base64V2)
-	r.POST("/file", controller.FileUploadV2)
+	r.GET("/", controller.Index)
+	r.GET("/status", controller.Status)
+	r.POST("/base64", controller.Base64)
+	r.POST("/file", controller.FileUpload)
 
 	return r
 }
