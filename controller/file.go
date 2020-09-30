@@ -1,11 +1,10 @@
-package controllers
+package controller
 
 import (
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/otiai10/gosseract/v2"
@@ -13,7 +12,7 @@ import (
 )
 
 var (
-	imgexp = regexp.MustCompile("^image")
+	// imgexp = regexp.MustCompile("^image")
 )
 
 // FileUpload ...

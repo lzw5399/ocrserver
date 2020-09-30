@@ -1,26 +1,32 @@
-package controllers
+/**
+ * @Author: lzw5399
+ * @Date: 2020/9/30 13:49
+ * @Desc: status controller
+ */
+package controller
 
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/otiai10/gosseract/v2"
 	"github.com/otiai10/marmoset"
 )
 
-const version = "0.2.0"
-
-// Status ...
-func Status(w http.ResponseWriter, r *http.Request) {
+func StatusV2(c *gin.Context) {
 	langs, err := gosseract.GetAvailableLanguages()
+
 	if err != nil {
-		marmoset.Render(w, true).JSON(http.StatusInternalServerError, marmoset.P{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
 		return
 	}
+
 	client := gosseract.NewClient()
 	defer client.Close()
-	marmoset.Render(w, true).JSON(http.StatusOK, marmoset.P{
+
+	c.JSON(http.StatusOK, gin.H{
 		"message": "Hello!",
 		"version": version,
 		"tesseract": marmoset.P{
