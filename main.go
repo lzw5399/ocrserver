@@ -8,8 +8,8 @@ import (
 
 	"github.com/otiai10/marmoset"
 
-	"github.com/otiai10/ocrserver/controllers"
-	"github.com/otiai10/ocrserver/filters"
+	"bank-ocr/controllers"
+	"bank-ocr/filters"
 )
 
 var logger *log.Logger
@@ -32,7 +32,8 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		logger.Fatalln("Required env `PORT` is not specified.")
+		port = "8081"
+		//logger.Fatalln("Required env `PORT` is not specified.")
 	}
 	logger.Printf("listening on port %s", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {

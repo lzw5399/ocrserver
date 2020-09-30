@@ -1,4 +1,4 @@
-module github.com/otiai10/ocrserver
+module bank-ocr
 
 go 1.15
 
