@@ -12,7 +12,7 @@ import (
 )
 
 func IndexV2(c *gin.Context){
-	c.HTML(http.StatusOK, "index", gin.H{
+	c.HTML(http.StatusOK, "index.html", gin.H{
 		"AppName": "bank-ocr",
 	})
 }

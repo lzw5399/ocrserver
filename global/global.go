@@ -6,9 +6,11 @@
 package global
 
 import (
+	"bank-ocr/config"
 	golog "github.com/op/go-logging"
 )
 
 var (
+	BANK_CONFIG config.Config
 	BANK_LOGGER *golog.Logger
 )

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bank-ocr/router"
-	"log"
 	"net/http"
 	"os"
+
+	"bank-ocr/router"
 )
-
-
 
 func main() {
 	r := router.InitRouter()
@@ -15,11 +13,10 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8081"
-		//logger.Fatalln("Required env `PORT` is not specified.")
 	}
 
-	logger.Printf("listening on port %s", port)
+	//global.BANK_LOGGER.Info("listening on port %s", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		logger.Println(err)
+		//global.BANK_LOGGER.Fatal(err)
 	}
 }
