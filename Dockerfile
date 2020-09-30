@@ -1,7 +1,5 @@
-FROM golang:1.12
+FROM golang:1.15
 ENV GO111MODULE=on
-
-LABEL maintainer="otiai10 <otiai10@gmail.com>"
 
 RUN apt-get -qq update \
   && apt-get install -y \
@@ -11,15 +9,17 @@ RUN apt-get -qq update \
 
 # Load languages
 RUN apt-get install -y \
-  tesseract-ocr-jpn
+  tesseract-ocr-jpn \
+  tesseract-ocr-chi-sim
+  # tesseract-ocr-chi-tra 繁体中文
 
 ADD . $GOPATH/src/github.com/otiai10/ocrserver
 WORKDIR $GOPATH/src/github.com/otiai10/ocrserver
 RUN go get ./...
 RUN go test -v github.com/otiai10/gosseract
 
-ARG LOAD_LANG=
-RUN if [ -n "${LOAD_LANG}" ]; then apt-get install -y tesseract-ocr-${LOAD_LANG}; fi
+#ARG LOAD_LANG=
+#RUN if [ -n "${LOAD_LANG}" ]; then apt-get install -y tesseract-ocr-${LOAD_LANG}; fi
 
 ENV PORT=8080
 CMD $GOPATH/bin/ocrserver

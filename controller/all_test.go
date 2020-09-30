@@ -41,7 +41,7 @@ func TestBase64(t *testing.T) {
 	}
 	body := new(RequestBodyForBase64)
 
-	f, err := os.Open("../test/data/001-base64.txt")
+	f, err := os.Open("../testdata/data/001-base64.txt")
 	Expect(t, err).ToBe(nil)
 	defer f.Close()
 	raw, err := ioutil.ReadAll(f)
@@ -113,7 +113,7 @@ func TestFileUpload(t *testing.T) {
 
 	body := new(bytes.Buffer)
 	w := multipart.NewWriter(body)
-	src, _ := os.Open("../test/data/ocrserver.png")
+	src, _ := os.Open("../testdata/data/ocrserver.png")
 	part, _ := w.CreateFormFile("file", "ocrserver.png")
 	io.Copy(part, src)
 	w.Close()
@@ -133,7 +133,7 @@ func TestFileUpload(t *testing.T) {
 	When(t, "hocr, langs, and whitelist provided", func(t *testing.T) {
 		body := new(bytes.Buffer)
 		w := multipart.NewWriter(body)
-		src, _ := os.Open("../test/data/ocrserver.png")
+		src, _ := os.Open("../testdata/data/ocrserver.png")
 		part, _ := w.CreateFormFile("file", "ocrserver.png")
 		io.Copy(part, src)
 		w.WriteField("languages", "eng,jpn")
