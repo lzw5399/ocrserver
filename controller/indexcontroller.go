@@ -10,16 +10,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/otiai10/gosseract/v2"
-	"github.com/otiai10/marmoset"
 )
 
-func Index(c *gin.Context){
+func Index(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"AppName": "bank-ocr",
 	})
 }
 
-func Status(c *gin.Context) {
+func Info(c *gin.Context) {
 	langs, err := gosseract.GetAvailableLanguages()
 
 	if err != nil {
@@ -35,7 +34,7 @@ func Status(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Hello!",
 		"version": version,
-		"tesseract": marmoset.P{
+		"tesseract": gin.H{
 			"version":   client.Version(),
 			"languages": langs,
 		},

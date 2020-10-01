@@ -25,6 +25,12 @@ var (
 	version = 0.2
 )
 
+// @Tags account
+// @Summary 用户注册
+// @Accept  json
+// @Produce json
+// @Success 200 {object} gin.H
+// @Router /account/register [post]
 func FileUpload(c *gin.Context) {
 	// Get uploaded file
 	_ = c.Request.ParseMultipartForm(32 << 20)

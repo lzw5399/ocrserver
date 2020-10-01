@@ -1,0 +1,23 @@
+definitions:
+  gin.H:
+    additionalProperties: true
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /account/register:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: 用户注册
+      tags:
+      - account
+swagger: "2.0"
