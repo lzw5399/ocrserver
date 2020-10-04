@@ -16,7 +16,7 @@
                 "tags": [
                     "account"
                 ],
-                "summary": "用户注册",
+                "summary": "OCR识别整张上传的图片",
                 "responses": {
                     "200": {
                         "description": "OK",

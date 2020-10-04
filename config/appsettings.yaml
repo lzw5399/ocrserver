@@ -1,3 +1,6 @@
+app:
+  name: bank-ocr
+
 log:
   prefix: '[bank-ocr]'
   stdout: 'DEBUG'

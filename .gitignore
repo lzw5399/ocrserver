@@ -4,3 +4,4 @@ coverage.txt
 .vscode
 bank-ocr
 log
+appsettings.*.yaml

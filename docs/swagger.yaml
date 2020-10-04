@@ -17,7 +17,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/gin.H'
-      summary: 用户注册
+      summary: OCR识别整张上传的图片
       tags:
       - account
 swagger: "2.0"

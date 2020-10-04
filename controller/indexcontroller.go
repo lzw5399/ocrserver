@@ -8,35 +8,25 @@ package controller
 import (
 	"net/http"
 
+	"bank-ocr/global"
+	"bank-ocr/global/response"
+	"bank-ocr/service"
+
 	"github.com/gin-gonic/gin"
-	"github.com/otiai10/gosseract/v2"
 )
 
 func Index(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"AppName": "bank-ocr",
+		"AppName": global.BANK_CONFIG.App.Name,
 	})
 }
 
 func Info(c *gin.Context) {
-	langs, err := gosseract.GetAvailableLanguages()
-
+	info, err := service.GetTesseractInfo()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
+		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
 
-	client := gosseract.NewClient()
-	defer client.Close()
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Hello!",
-		"version": version,
-		"tesseract": gin.H{
-			"version":   client.Version(),
-			"languages": langs,
-		},
-	})
+	response.OkWithData(c, info)
 }

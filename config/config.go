@@ -7,6 +7,11 @@ package config
 
 type Config struct {
 	Log Log `yaml:"log"`
+	App App `yaml:"app"`
+}
+
+type App struct {
+	Name string `yaml:"name"`
 }
 
 type Log struct {

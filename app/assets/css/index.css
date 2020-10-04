@@ -1,33 +1,51 @@
 * {
-  transition: all 0.1s;
+    transition: all 0.1s;
+}
+
+.pure-number {
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+/* pixel */
+.pixel {
+    width: 20%;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
 }
 
 /* Hero */
 .hero.is-mono {
-  background-color: #303030;
+    background-color: #303030;
 }
+
 .hero.is-mono *:not(a) {
-  color: #ffffff;
+    color: #ffffff;
 }
+
 .hero.is-mono a:hover {
-  color: #40a0fd;
+    color: #40a0fd;
 }
 
 /* Image Container */
 .img-container {
-  text-align: center;
-  background-size: contain;
+    text-align: center;
+    background-size: contain;
 }
-.img-container>img {
-  display: block;
-  object-fit: contain;
+
+.img-container > img {
+    display: block;
+    object-fit: contain;
 }
-.img-container>img:not([src=""]) {
-  width: 100%;
+
+.img-container > img:not([src=""]) {
+    width: 100%;
 }
-.img-container>img:not([src=""]) + p {
-  display: none;
+
+.img-container > img:not([src=""]) + p {
+    display: none;
 }
-.img-container>img[src=""] {
-  display: none;
+
+.img-container > img[src=""] {
+    display: none;
 }

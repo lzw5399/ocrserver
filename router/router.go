@@ -6,6 +6,8 @@
 package router
 
 import (
+	"net/http"
+
 	"bank-ocr/controller"
 
 	"github.com/gin-contrib/cors"
@@ -23,7 +25,10 @@ func InitRouter() *gin.Engine {
 	r.Use(cors.Default())
 
 	// swagger
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/api/swagger/index.html")
+	})
 
 	// static
 	r.LoadHTMLGlob("./app/views/*")
@@ -35,7 +40,8 @@ func InitRouter() *gin.Engine {
 
 	ocrGroup := r.Group("/api/ocr")
 	{
-		ocrGroup.POST("file", controller.FileUpload)
+		ocrGroup.POST("file", controller.OcrScanImage)
+		ocrGroup.POST("scan-crop-file", controller.OcrScanImageAfterCrop)
 		ocrGroup.POST("base64", controller.Base64)
 	}
 

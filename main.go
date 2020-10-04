@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bank-ocr/global"
 	"fmt"
 	"net/http"
 	"os"
 
 	_ "bank-ocr/docs"
+	"bank-ocr/global"
 	_ "bank-ocr/initialize"
 	"bank-ocr/router"
 )
@@ -19,7 +19,7 @@ func main() {
 		port = "8081"
 	}
 
-	fmt.Printf("listening on port %s\n", port)
+	fmt.Printf("application has started, listening on port %s\n", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		global.BANK_LOGGER.Fatal(err)
 	}
