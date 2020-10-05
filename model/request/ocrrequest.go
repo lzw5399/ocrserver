@@ -10,6 +10,7 @@ type FileFormRequest struct {
 	Whitelist string `form:"whitelist" json:"whitelist"`
 	Format    string `form:"format" json:"format"`
 	Trim      string `form:"trim" json:"trim"`
+	File      string `json:"file" form:"file" format:"binary"`
 }
 
 type FileWithPixelPointRequest struct {
@@ -22,6 +23,7 @@ type MatrixPixel struct {
 	PointA Pixel `form:"pointA" json:"pointA"`
 	PointB Pixel `form:"pointB" json:"pointB"`
 }
+
 // [{ "pointA": {"x": 127, "y": 249}, "pointB": {"x": 983, "y": 309}}]
 // 像素坐标点
 type Pixel struct {

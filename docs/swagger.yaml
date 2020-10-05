@@ -6,10 +6,16 @@ info:
   contact: {}
   license: {}
 paths:
-  /account/register:
+  /api/ocr/file:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: file request
+        in: formData
+        name: payload
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -19,5 +25,5 @@ paths:
             $ref: '#/definitions/gin.H'
       summary: OCR识别整张上传的图片
       tags:
-      - account
+      - ocr
 swagger: "2.0"

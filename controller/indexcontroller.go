@@ -1,7 +1,7 @@
 /**
  * @Author: lzw5399
  * @Date: 2020/9/30 14:25
- * @Desc: index page controller
+ * @Desc: home page controller
  */
 package controller
 
@@ -22,7 +22,7 @@ func Index(c *gin.Context) {
 }
 
 func Info(c *gin.Context) {
-	info, err := service.GetTesseractInfo()
+	info, err := service.GetTesseractInfoV2()
 	if err != nil {
 		response.Failed(c, http.StatusInternalServerError)
 		return

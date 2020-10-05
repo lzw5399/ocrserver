@@ -25,7 +25,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/account/register": {
+        "/api/ocr/file": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -34,9 +34,18 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "account"
+                    "ocr"
                 ],
                 "summary": "OCR识别整张上传的图片",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "file request",
+                        "name": "payload",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

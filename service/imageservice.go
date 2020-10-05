@@ -22,12 +22,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const (
-	JPEG = iota
-	PNG
-	GIF
-)
-
 // 通过像素点裁剪
 func CropImageByPixelPosition() {
 	img, err := imaging.Open("images/xuezhixia.png")

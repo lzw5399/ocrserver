@@ -1,5 +1,5 @@
 app:
-  name: bank-ocr
+  name: 'bank-ocr'
 
 log:
   prefix: '[bank-ocr]'

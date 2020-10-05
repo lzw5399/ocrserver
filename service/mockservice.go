@@ -8,8 +8,12 @@ package service
 import (
 	"bank-ocr/model/request"
 	"bank-ocr/model/response"
+	"bytes"
 	"errors"
+	"github.com/disintegration/imaging"
 	"image"
+	"io"
+	"mime/multipart"
 )
 
 func GetTextFromImageV2(img image.Image, contentType string, re request.FileFormRequest) (string, error) {
@@ -33,4 +37,15 @@ func GetTesseractInfoV2() (*response.InfoResponse, error) {
 
 func OcrTextFromImagesV2(imgs []image.Image, contentType string, re request.FileFormRequest) ([]string, error) {
 	return nil, errors.New("mock")
+}
+
+func GrayImageV2(f multipart.File, re request.FileFormRequest) (image.Image, error) {
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, f); err != nil {
+		return nil, err
+	}
+
+	reader := bytes.NewReader(buf.Bytes())
+
+	return imaging.Decode(reader)
 }

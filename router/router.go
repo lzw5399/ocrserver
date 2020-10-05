@@ -33,6 +33,7 @@ func InitRouter() *gin.Engine {
 	// static
 	r.LoadHTMLGlob("./app/views/*")
 	r.Static("/assets", "./app/assets")
+	r.StaticFile("/favicon.ico", "./app/assets/favicon.ico")
 
 	// APIs
 	r.GET("/", controller.Index)
@@ -40,8 +41,8 @@ func InitRouter() *gin.Engine {
 
 	ocrGroup := r.Group("/api/ocr")
 	{
-		ocrGroup.POST("file", controller.OcrScanImage)
-		ocrGroup.POST("scan-crop-file", controller.OcrScanImageAfterCrop)
+		ocrGroup.POST("file", controller.ScanFile)
+		ocrGroup.POST("scan-crop-file", controller.ScanCropFile)
 		ocrGroup.POST("base64", controller.Base64)
 	}
 
