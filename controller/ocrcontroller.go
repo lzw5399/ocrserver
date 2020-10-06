@@ -56,7 +56,7 @@ func ScanFile(c *gin.Context) {
 	}
 
 	// 针对像素坐标点进行裁剪并灰度化
-	img, err := service.GrayImageV2(upload, r)
+	img, err := service.GrayImage(upload)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
@@ -72,7 +72,11 @@ func ScanFile(c *gin.Context) {
 		return
 	}
 
-	response.OkWithData(c, text)
+	if r.HOCRMode {
+		response.OkWithPureData(c, text)
+	} else {
+		response.OkWithData(c, text)
+	}
 }
 
 // @Tags ocr
@@ -138,7 +142,11 @@ func ScanCropFile(c *gin.Context) {
 		return
 	}
 
-	response.OkWithData(c, texts)
+	if r.HOCRMode {
+		response.OkWithPureData(c, texts)
+	} else {
+		response.OkWithData(c, texts)
+	}
 }
 
 // @Tags ocr
@@ -151,7 +159,7 @@ func ScanCropFile(c *gin.Context) {
 func Base64(c *gin.Context) {
 	var r request.Base64Request
 	if err := c.ShouldBind(&r); err != nil {
-		response.Failed(c, http.StatusBadRequest)
+		response.FailWithMsg(c, http.StatusBadRequest, "bing faaa")
 		return
 	}
 
@@ -169,5 +177,9 @@ func Base64(c *gin.Context) {
 		return
 	}
 
-	response.OkWithData(c, text)
+	if r.HOCRMode {
+		response.OkWithPureData(c, text)
+	} else {
+		response.OkWithData(c, text)
+	}
 }

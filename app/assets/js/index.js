@@ -6,6 +6,9 @@ window.onload = () => {
             return new Promise((resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 xhr.open("POST", path, true);
+                if (JSON.stringify(data).indexOf("json-content-type") > -1) {
+                    xhr.setRequestHeader("Content-Type", "application/json")
+                }
                 xhr.onreadystatechange = () => {
                     if (xhr.readyState === XMLHttpRequest.DONE) return resolve(xhr);
                 };
@@ -63,7 +66,6 @@ window.onload = () => {
         alert("eewewe")
     });
     ui.submit.addEventListener("click", () => {
-        console.log(ui)
         ui.start();
         const req = generateRequest();
         if (!req) return ui.finish();
@@ -80,15 +82,16 @@ window.onload = () => {
             req.data = new FormData();
             if (ui.langs.value) req.data.append("languages", ui.langs.value);
             if (ui.whitelist.value) req.data.append("whitelist", ui.whitelist.value);
-            if (ui.hocr.checked) req.data.append("format", "hocr");
+            if (ui.hocr.checked) req.data.append("hocrMode", true);
             req.data.append("file", ui.file.files[0]);
         } else if (/^data:.+/.test(ui.image.src)) {
             req.path = "/api/ocr/base64";
-            let data = {base64: ui.image.src};
+            let data = {base64: ui.image.src, "json-content-type": true};
             if (ui.langs.value) data["languages"] = ui.langs.value;
             if (ui.whitelist.value) data["whitelist"] = ui.whitelist.value;
-            if (ui.hocr.checked) data["format"] = "hocr";
+            if (ui.hocr.checked) data["hocrMode"] = true;
             req.data = JSON.stringify(data);
+            console.log('dataaa', req.data)
         } else {
             return window.alert("no image input set");
         }
@@ -99,7 +102,6 @@ window.onload = () => {
 let addPixel = () => {
     let lastDiv = getLastDivObj()
 
-    console.log('当前存在的div', lastDiv)
     let nextDivId = getNextDivId(1)
     let newDiv = document.createElement(nextDivId)
 }
@@ -117,9 +119,7 @@ let getNextDivId = (index) => {
 let getLastDivId = (index) => {
     const prefix = "pixel-group"
     let div = document.getElementById("" + prefix + index)
-    console.log("getLastDivId中的div", div)
     if (!div) {
-        console.log("当前div为空", "" + prefix + (index - 1), div)
         return "" + prefix + (index - 1)
     }
 

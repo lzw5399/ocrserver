@@ -7,60 +7,15 @@ package service
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"os"
 
-	"bank-ocr/global"
-	req "bank-ocr/model/request"
+	"bank-ocr/model/request"
 
 	"github.com/disintegration/imaging"
-	uuid "github.com/satori/go.uuid"
 )
-
-// 通过像素点裁剪
-func CropImageByPixelPosition() {
-	img, err := imaging.Open("images/xuezhixia.png")
-	if err != nil {
-		global.BANK_LOGGER.Fatalf("failed to open image: %v\n", err)
-	}
-
-	// 根据两个坐标点裁剪
-	img = imaging.Crop(img, image.Rect(0, 0, 200, 200))
-
-	// 灰度化
-	img = imaging.Grayscale(img)
-
-	id := uuid.NewV4().String()
-	fmt.Printf("current file name is %s \n", id)
-
-	err = imaging.Save(img, fmt.Sprintf("images/%s.png", id))
-	if err != nil {
-		global.BANK_LOGGER.Fatal(err)
-	}
-}
-
-func CopyToTempFile(upload multipart.File) (*os.File, error) {
-	// Create temp physical file
-	tempFile, err := ioutil.TempFile("", "ocrserver"+"-")
-	if err != nil {
-		return nil, err
-	}
-
-	// Make uploaded physical
-	_, err = io.Copy(tempFile, upload)
-
-	return tempFile, err
-}
-
-// 图片灰度化
-func GrayscaleImage() {
-
-}
 
 var supportImgType = [4]string{
 	"image/png",
@@ -90,7 +45,7 @@ func EnsureFileType(f multipart.File) (bool, string, error) {
 }
 
 // 像素点切割和灰度化, 返回image切片
-func CropAndGrayImage(f multipart.File, re req.FileWithPixelPointRequest) ([]image.Image, error) {
+func CropAndGrayImage(f multipart.File, re request.FileWithPixelPointRequest) ([]image.Image, error) {
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, f); err != nil {
 		return nil, err
@@ -116,7 +71,7 @@ func CropAndGrayImage(f multipart.File, re req.FileWithPixelPointRequest) ([]ima
 }
 
 // 图像灰度化
-func GrayImage(f multipart.File, re req.FileFormRequest) (image.Image, error) {
+func GrayImage(f multipart.File) (image.Image, error) {
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, f); err != nil {
 		return nil, err

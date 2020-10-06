@@ -6,14 +6,16 @@
 package service
 
 import (
-	"bank-ocr/model/request"
-	"bank-ocr/model/response"
 	"bytes"
 	"errors"
-	"github.com/disintegration/imaging"
 	"image"
 	"io"
 	"mime/multipart"
+
+	"bank-ocr/model/request"
+	"bank-ocr/model/response"
+
+	"github.com/disintegration/imaging"
 )
 
 func GetTextFromImageV2(img image.Image, contentType string, re request.FileFormRequest) (string, error) {

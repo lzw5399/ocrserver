@@ -35,6 +35,15 @@ func OkWithDetailed(c *gin.Context, data interface{}, message string) {
 	result(c, data, message)
 }
 
+// 最终返回c.PureJson
+func OkWithPureData(c *gin.Context, data interface{}) {
+	c.PureJSON(http.StatusOK, HttpResponse{
+		true,
+		"操作成功",
+		data,
+	})
+}
+
 func Failed(c *gin.Context, status int) {
 	FailWithMsg(c, status, "操作失败")
 }
