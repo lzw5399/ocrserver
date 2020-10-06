@@ -4,6 +4,39 @@
         "contact": {}
     },
     "paths": {
+        "/api/ocr/base64": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ocr"
+                ],
+                "summary": "OCR识别BASE64格式的图片",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "file",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Base64Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.HttpResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/ocr/file": {
             "post": {
                 "consumes": [
@@ -15,7 +48,34 @@
                 "tags": [
                     "ocr"
                 ],
-                "summary": "OCR recognizes the entire uploaded image",
+                "summary": "OCR识别上传的整张图片",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "图片文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "可选项: 指定要识别的语言种类，如eng(英文) chi_sim(简体中文)，可以用逗号隔开指定多个, 不指定默认是eng",
+                        "name": "languages",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "可选项: 为空检测全部字符。如果填写，仅会检测白名单之内的字符",
+                        "name": "whitelist",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "可选项: 是否开始HOCR，一般默认为false",
+                        "name": "hocrMode",
+                        "in": "formData"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -37,7 +97,7 @@
                 "tags": [
                     "ocr"
                 ],
-                "summary": "OCR recognizes the entire uploaded image",
+                "summary": "OCR识别像素点裁剪之后的图片文字",
                 "parameters": [
                     {
                         "type": "file",
@@ -84,6 +144,26 @@
         }
     },
     "definitions": {
+        "request.Base64Request": {
+            "type": "object",
+            "required": [
+                "base64"
+            ],
+            "properties": {
+                "base64": {
+                    "type": "string"
+                },
+                "hocrMode": {
+                    "type": "boolean"
+                },
+                "languages": {
+                    "type": "string"
+                },
+                "whitelist": {
+                    "type": "string"
+                }
+            }
+        },
         "response.HttpResponse": {
             "type": "object",
             "properties": {

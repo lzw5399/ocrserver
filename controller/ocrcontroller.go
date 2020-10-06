@@ -6,10 +6,12 @@
 package controller
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
+	"regexp"
 
-	. "bank-ocr/global"
+	"bank-ocr/global"
 	"bank-ocr/global/response"
 	"bank-ocr/model/request"
 	"bank-ocr/service"
@@ -19,6 +21,7 @@ import (
 
 const (
 	INVALID_IMG_TYPE_MSG = "invalid file or unsupported file type. Only support .jpg .jpeg .png .gif .tiff, please double check!"
+	INVALID_BASE64_MSG   = "invalid BASE64 string, please double check!"
 )
 
 // @Tags ocr
@@ -55,7 +58,7 @@ func ScanFile(c *gin.Context) {
 	// 针对像素坐标点进行裁剪并灰度化
 	img, err := service.GrayImageV2(upload, r)
 	if err != nil {
-		BANK_LOGGER.Error(err)
+		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
@@ -64,7 +67,7 @@ func ScanFile(c *gin.Context) {
 	text, err := service.GetTextFromImage(img, contentType, r)
 
 	if err != nil {
-		BANK_LOGGER.Error(err)
+		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
@@ -122,7 +125,7 @@ func ScanCropFile(c *gin.Context) {
 	// 针对像素坐标点进行裁剪并灰度化
 	imgs, err := service.CropAndGrayImage(upload, r)
 	if err != nil {
-		BANK_LOGGER.Error(err)
+		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
@@ -130,7 +133,7 @@ func ScanCropFile(c *gin.Context) {
 	// 裁剪之后的图片进行ocr识别
 	texts, err := service.OcrTextFromImages(imgs, contentType, r.ToFileFormRequest())
 	if err != nil {
-		BANK_LOGGER.Error(err)
+		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
@@ -138,62 +141,33 @@ func ScanCropFile(c *gin.Context) {
 	response.OkWithData(c, texts)
 }
 
+// @Tags ocr
+// @Summary OCR识别BASE64格式的图片
+// @Accept  json
+// @Produce json
+// @param file body request.Base64Request true "request"
+// @Success 200 {object} response.HttpResponse
+// @Router /api/ocr/base64 [post]
 func Base64(c *gin.Context) {
-	//var body = new(struct {
-	//	Base64    string `json:"base64"`
-	//	Trim      string `json:"trim"`
-	//	Languages string `json:"languages"`
-	//	Whitelist string `json:"whitelist"`
-	//})
-	//
-	//err := json.NewDecoder(c.Request.Body).Decode(body)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, err)
-	//	return
-	//}
-	//
-	//tempFile, err := ioutil.TempFile("", "ocrserver"+"-")
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, err)
-	//	return
-	//}
-	//defer func() {
-	//	tempFile.Close()
-	//	os.Remove(tempFile.Name())
-	//}()
-	//
-	//if len(body.Base64) == 0 {
-	//	c.JSON(http.StatusBadRequest, fmt.Errorf("base64 string required"))
-	//	return
-	//}
-	//body.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(body.Base64, "")
-	//b, err := base64.StdEncoding.DecodeString(body.Base64)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, err)
-	//	return
-	//}
-	//tempFile.Write(b)
-	//
-	//client := gosseract.NewClient()
-	//defer client.Close()
-	//
-	//client.Languages = []string{"eng"}
-	//if body.Languages != "" {
-	//	client.Languages = strings.Split(body.Languages, ",")
-	//}
-	//client.SetImage(tempFile.Name())
-	//if body.Whitelist != "" {
-	//	client.SetWhitelist(body.Whitelist)
-	//}
-	//
-	//text, err := client.Text()
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, err)
-	//	return
-	//}
-	//
-	//c.JSON(http.StatusOK, gin.H{
-	//	"result":  strings.Trim(text, body.Trim),
-	//	"version": version,
-	//})
+	var r request.Base64Request
+	if err := c.ShouldBind(&r); err != nil {
+		response.Failed(c, http.StatusBadRequest)
+		return
+	}
+
+	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
+	buf, err := base64.StdEncoding.DecodeString(r.Base64)
+	if err != nil {
+		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+		return
+	}
+
+	text, err := service.OcrTextFromBytes(r.OcrBase, buf)
+	if err != nil {
+		global.BANK_LOGGER.Error(err)
+		response.Failed(c, http.StatusInternalServerError)
+		return
+	}
+
+	response.OkWithData(c, text)
 }

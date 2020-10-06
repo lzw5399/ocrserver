@@ -1,6 +1,6 @@
 /**
  * @Author: lzw5399
- * @Date: 2020/10/2 14:50
+ * @Date: 2020/9/30 14:50
  * @Desc:
  */
 package request
@@ -8,15 +8,24 @@ package request
 import "mime/multipart"
 
 type FileFormRequest struct {
-	Languages string                `form:"languages" json:"languages"`
-	Whitelist string                `form:"whitelist" json:"whitelist"`
-	HOCRMode  bool                  `form:"hocrMode" json:"hocrMode"`
-	File      *multipart.FileHeader `form:"file" binding:"required"`
+	OcrBase
+	File *multipart.FileHeader `form:"file" binding:"required"`
 }
 
 type FileWithPixelPointRequest struct {
 	FileFormRequest
 	MatrixPixels []MatrixPixel `form:"-" json:"matrixPixels"` // formdata没法绑定这种对象数组
+}
+
+type Base64Request struct {
+	OcrBase
+	Base64 string `json:"base64" binding:"required"`
+}
+
+type OcrBase struct {
+	Languages string `form:"languages" json:"languages"`
+	Whitelist string `form:"whitelist" json:"whitelist"`
+	HOCRMode  bool   `form:"hocrMode" json:"hocrMode"`
 }
 
 // 两个像素坐标点能圈出一个矩阵
@@ -34,9 +43,11 @@ type Pixel struct {
 
 func (r *FileWithPixelPointRequest) ToFileFormRequest() FileFormRequest {
 	req := FileFormRequest{
-		Languages: r.Languages,
-		Whitelist: r.Whitelist,
-		HOCRMode:  r.HOCRMode,
+		OcrBase: OcrBase{
+			Languages: r.Languages,
+			Whitelist: r.Whitelist,
+			HOCRMode:  r.HOCRMode,
+		},
 	}
 
 	return req

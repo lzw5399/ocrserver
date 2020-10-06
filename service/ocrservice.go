@@ -28,7 +28,7 @@ func GetTextFromImage(img image.Image, contentType string, re request.FileFormRe
 		return "", err
 	}
 
-	return ocrTextFromBytes(re, buf)
+	return OcrTextFromBytes(re.OcrBase, buf)
 }
 
 // 从 []image.Image 获取 []string
@@ -42,7 +42,7 @@ func OcrTextFromImages(imgs []image.Image, contentType string, re request.FileFo
 			return nil, err
 		}
 
-		result, err := ocrTextFromBytes(re, buf)
+		result, err := OcrTextFromBytes(re.OcrBase, buf)
 		if err != nil {
 			return nil, err
 		}
@@ -72,7 +72,7 @@ func GetTesseractInfo() (*response.InfoResponse, error) {
 	}, nil
 }
 
-func ocrTextFromBytes(req request.FileFormRequest, bytes []byte) (string, error) {
+func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 	client := gosseract.NewClient()
 	defer client.Close()
 
