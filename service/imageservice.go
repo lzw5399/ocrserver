@@ -63,7 +63,6 @@ func CropAndGrayImage(f multipart.File, re request.FileWithPixelPointRequest) ([
 	for i, v := range re.MatrixPixels {
 		var tempImg image.Image = imaging.Crop(img, image.Rect(v.PointA.X, v.PointA.Y, v.PointB.X, v.PointB.Y))
 		tempImg = imaging.Grayscale(tempImg)
-		imaging.Save(tempImg, "testdata/666.png")
 		imgs[i] = tempImg
 	}
 

@@ -10,7 +10,6 @@
     <script type="text/javascript" src="/assets/js/index.js"></script>
 </head>
 <body>
-
 <section class="hero is-mono">
     <div class="hero-body">
         <div class="container">
@@ -76,20 +75,9 @@
                     </div>
                 </div>
 
-                <div class="field">
+                <div class="field" id="pixel-container">
                     <label class="label">矩阵像素点</label>
                     <p class="help">为空识别整张图片。如果填写，会仅识别一组(两个)像素坐标点围成的矩阵内的文字，可以指定多组</p>
-                    <div id="pixel-group1">
-                        <strong style="line-height: inherit">点A</strong>
-                        <input class="pixel input" type="number" name="ax1" placeholder="x"/>
-                        <input class="pixel input" type="number" name="ay1" placeholder="y"/>
-                        <strong style="text-align:center;">点B</strong>
-                        <input class="pixel input" type="number" name="bx1" placeholder="x"/>
-                        <input class="pixel input" type="number" name="by1" placeholder="y"/>
-                        <input type="button" value="dsds" id="ttt">
-                        <i class="fas fa-plus" onclick="addPixel()" style="cursor:pointer"></i>
-                        <i class="fas fa-minus" onclick="alert('-')" style="cursor:pointer"></i>
-                    </div>
                 </div>
 
                 <div class="field">

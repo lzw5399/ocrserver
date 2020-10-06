@@ -15,7 +15,7 @@ input[type=number] {
 
 /* pixel */
 .pixel {
-    width: 14%;
+    width: 18%;
     -webkit-appearance: none;
     -moz-appearance: textfield;
 }

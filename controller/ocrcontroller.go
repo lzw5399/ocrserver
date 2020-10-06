@@ -106,7 +106,7 @@ func ScanCropFile(c *gin.Context) {
 	var matrixPixels []request.MatrixPixel
 	err := json.Unmarshal([]byte(b[0]), &matrixPixels)
 	if err != nil {
-		response.FailWithMsg(c, http.StatusBadRequest, "matrixPixels invalid.")
+		response.FailWithMsg(c, http.StatusBadRequest, "matrixPixels invalid.反序列化失败")
 		return
 	}
 	r.MatrixPixels = matrixPixels

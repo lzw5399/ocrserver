@@ -23,7 +23,6 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/otiai10/gosseract/v2 v2.2.4
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/satori/go.uuid v1.2.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.8-0.20200921161410-33e4ac3219fa
