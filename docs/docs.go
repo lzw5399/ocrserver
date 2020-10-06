@@ -19,7 +19,6 @@ var doc = `{
         "description": "{{.Description}}",
         "title": "{{.Title}}",
         "contact": {},
-        "license": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -28,7 +27,7 @@ var doc = `{
         "/api/ocr/file": {
             "post": {
                 "consumes": [
-                    "application/json"
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -36,21 +35,68 @@ var doc = `{
                 "tags": [
                     "ocr"
                 ],
-                "summary": "OCR识别整张上传的图片",
+                "summary": "OCR recognizes the entire uploaded image",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.HttpResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ocr/scan-crop-file": {
+            "post": {
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ocr"
+                ],
+                "summary": "OCR recognizes the entire uploaded image",
                 "parameters": [
                     {
                         "type": "file",
-                        "description": "file request",
-                        "name": "payload",
+                        "description": "图片文件",
+                        "name": "file",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "裁剪像素点。必须是下面格式的合法json字符串： [{ pointA: {x: 127, y: 249}, pointB: {x: 983, y: 309}}]",
+                        "name": "matrixPixels",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "可选项: 指定要识别的语言种类，如eng(英文) chi_sim(简体中文)，可以用逗号隔开指定多个, 不指定默认是eng",
+                        "name": "languages",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "可选项: 为空检测全部字符。如果填写，仅会检测白名单之内的字符",
+                        "name": "whitelist",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "可选项: 是否开始HOCR，一般默认为false",
+                        "name": "hocrMode",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gin.H"
+                            "$ref": "#/definitions/response.HttpResponse"
                         }
                     }
                 }
@@ -58,9 +104,19 @@ var doc = `{
         }
     },
     "definitions": {
-        "gin.H": {
+        "response.HttpResponse": {
             "type": "object",
-            "additionalProperties": true
+            "properties": {
+                "data": {
+                    "type": "object"
+                },
+                "message": {
+                    "type": "object"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
         }
     }
 }`

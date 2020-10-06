@@ -22,7 +22,7 @@ func Index(c *gin.Context) {
 }
 
 func Info(c *gin.Context) {
-	info, err := service.GetTesseractInfoV2()
+	info, err := service.GetTesseractInfo()
 	if err != nil {
 		response.Failed(c, http.StatusInternalServerError)
 		return

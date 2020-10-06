@@ -1,29 +1,65 @@
 definitions:
-  gin.H:
-    additionalProperties: true
+  response.HttpResponse:
+    properties:
+      data:
+        type: object
+      message:
+        type: object
+      success:
+        type: boolean
     type: object
 info:
   contact: {}
-  license: {}
 paths:
   /api/ocr/file:
     post:
       consumes:
-      - application/json
-      parameters:
-      - description: file request
-        in: formData
-        name: payload
-        required: true
-        type: file
+      - application/x-www-form-urlencoded
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gin.H'
-      summary: OCR识别整张上传的图片
+            $ref: '#/definitions/response.HttpResponse'
+      summary: OCR recognizes the entire uploaded image
+      tags:
+      - ocr
+  /api/ocr/scan-crop-file:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - description: 图片文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: '裁剪像素点。必须是下面格式的合法json字符串： [{ pointA: {x: 127, y: 249}, pointB: {x: 983, y: 309}}]'
+        in: formData
+        name: matrixPixels
+        required: true
+        type: string
+      - description: '可选项: 指定要识别的语言种类，如eng(英文) chi_sim(简体中文)，可以用逗号隔开指定多个, 不指定默认是eng'
+        in: formData
+        name: languages
+        type: string
+      - description: '可选项: 为空检测全部字符。如果填写，仅会检测白名单之内的字符'
+        in: formData
+        name: whitelist
+        type: string
+      - description: '可选项: 是否开始HOCR，一般默认为false'
+        in: formData
+        name: hocrMode
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.HttpResponse'
+      summary: OCR recognizes the entire uploaded image
       tags:
       - ocr
 swagger: "2.0"

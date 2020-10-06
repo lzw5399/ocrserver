@@ -5,12 +5,13 @@
  */
 package request
 
+import "mime/multipart"
+
 type FileFormRequest struct {
-	Languages string `form:"languages" json:"languages"`
-	Whitelist string `form:"whitelist" json:"whitelist"`
-	Format    string `form:"format" json:"format"`
-	Trim      string `form:"trim" json:"trim"`
-	File      string `json:"file" form:"file" format:"binary"`
+	Languages string                `form:"languages" json:"languages"`
+	Whitelist string                `form:"whitelist" json:"whitelist"`
+	HOCRMode  bool                  `form:"hocrMode" json:"hocrMode"`
+	File      *multipart.FileHeader `form:"file" binding:"required"`
 }
 
 type FileWithPixelPointRequest struct {
@@ -35,8 +36,7 @@ func (r *FileWithPixelPointRequest) ToFileFormRequest() FileFormRequest {
 	req := FileFormRequest{
 		Languages: r.Languages,
 		Whitelist: r.Whitelist,
-		Format:    r.Format,
-		Trim:      r.Trim,
+		HOCRMode:  r.HOCRMode,
 	}
 
 	return req
