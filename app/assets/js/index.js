@@ -122,12 +122,11 @@ window.onload = () => {
         })
         existItems = tempArr
     }, 500)
-    setInterval(() => {
-        removeErrorIfExist()
-    }, 5000)
 };
 
 let addPixel = (initial) => {
+    removeErrorIfExist()
+
     // 创建新的div
     let nextDivId = getNextDivId()
     let nextDiv = document.createElement("div")
@@ -170,6 +169,8 @@ let addPixel = (initial) => {
 }
 
 let removePixel = (index) => {
+    removeErrorIfExist()
+
     let container = document.getElementById(containerId)
     let currentDiv = document.getElementById(pixelPrefix + index)
     container.removeChild(currentDiv)
