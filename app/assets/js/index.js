@@ -130,6 +130,7 @@ let addPixel = (initial) => {
     // 创建新的div
     let nextDivId = getNextDivId()
     let nextDiv = document.createElement("div")
+    nextDiv.setAttribute("class", "pixel-container")
     nextDiv.id = nextDivId
 
     // 创建新div下的元素
@@ -175,11 +176,13 @@ let removePixel = (index) => {
     let currentDiv = document.getElementById(pixelPrefix + index)
     container.removeChild(currentDiv)
 
+    let tempArr = []
     for (let i = 0; i < existItems.length; i++) {
-        if (existItems[i] === index) {
-            existItems = existItems.splice(i, 1)
+        if (existItems[i] !== index) {
+            tempArr.push(existItems[i])
         }
     }
+    existItems = tempArr
 
     refreshIconShown()
 }
