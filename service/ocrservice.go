@@ -15,6 +15,7 @@ import (
 	"image/png"
 	"strings"
 
+	"bank-ocr/global"
 	"bank-ocr/model/request"
 	"bank-ocr/model/response"
 
@@ -80,7 +81,7 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 		return "", err
 	}
 
-	client.Languages = []string{"eng"}
+	client.Languages = global.BANK_CONFIG.Ocr.DefaultLangs
 
 	if req.Languages != "" {
 		client.Languages = strings.Split(req.Languages, ",")
