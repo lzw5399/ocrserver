@@ -1,6 +1,7 @@
 "use strict"; // ES6
 const containerId = "pixel-container"
 const pixelPrefix = "pixel-group"
+const shieldOfArgus = "shield-of-argus"
 let existItems = []
 
 window.onload = () => {
@@ -130,7 +131,7 @@ let addPixel = (initial) => {
     // 创建新的div
     let nextDivId = getNextDivId()
     let nextDiv = document.createElement("div")
-    nextDiv.setAttribute("class", "pixel-container")
+    nextDiv.setAttribute("class", "pixel-group")
     nextDiv.id = nextDivId
 
     // 创建新div下的元素
@@ -143,7 +144,8 @@ let addPixel = (initial) => {
     let by = createNumberInput("by" + nextIndex, "y")
     let iconAdd = createIconElem("add" + nextIndex, nextIndex, true)
     let iconMinus = createIconElem("minus" + nextIndex, nextIndex, false)
-    let spaceArray = createSpaceArray(5)
+    let spaceArray = createSpaceArray(4)
+    let shieldOfArgus = createShieldOfArgus(nextIndex)
 
     nextDiv.appendChild(pointA)
     nextDiv.appendChild(ax)
@@ -156,7 +158,7 @@ let addPixel = (initial) => {
     nextDiv.appendChild(by)
     nextDiv.appendChild(spaceArray[3])
     nextDiv.appendChild(iconAdd)
-    nextDiv.appendChild(spaceArray[4])
+    nextDiv.appendChild(shieldOfArgus)
     if (!initial) {
         nextDiv.appendChild(iconMinus)
     }
@@ -199,7 +201,7 @@ let createNumberInput = (id, placeholder) => {
 }
 
 let createStrong = (text) => {
-    let elem = document.createElement("strong")
+    let elem = document.createElement("span")
     elem.innerHTML = text
 
     return elem
@@ -219,6 +221,32 @@ let createIconElem = (id, index, isAdd) => {
     }
 
     return elem
+}
+
+let createShieldOfArgus = (index) => {
+    let elem = document.createElement("span")
+    elem.setAttribute("id", shieldOfArgus + index)
+    elem.innerHTML = "&nbsp;"
+
+    return elem
+}
+
+let appendShieldOfArgus = (index) => {
+    let soa = createShieldOfArgus(index)
+
+    let div = document.getElementById(pixelPrefix + index)
+
+    div.appendChild(soa)
+}
+
+let removeShieldOfArgusIfExist = (index) => {
+    let div = document.getElementById(pixelPrefix + index)
+
+    let soa = document.getElementById(shieldOfArgus + index)
+
+    if (!soa) return
+
+    div.removeChild(soa)
 }
 
 let createSpaceArray = (num) => {
@@ -351,13 +379,20 @@ let refreshIconShown = () => {
         return
     }
 
+    let len = existItems.length
     // 最后一个之前都是减号
-    for (let i = 0; i < existItems.length - 1; i++) {
+    for (let i = 0; i < len - 1; i++) {
+        removeShieldOfArgusIfExist(existItems[i])
         removeIconByIndexIfExist(existItems[i], true)
         createIconByIndexIfNotExist(existItems[i], false)
     }
-    removeIconByIndexIfExist(existItems[existItems.length - 1], false)
-    createIconByIndexIfNotExist(existItems[existItems.length - 1], true)
+    removeShieldOfArgusIfExist(existItems[len - 1])
+    removeIconByIndexIfExist(existItems[len - 1], false)
+    removeIconByIndexIfExist(existItems[len - 1], true)
+
+    createIconByIndexIfNotExist(existItems[len - 1], false)
+    appendShieldOfArgus(existItems[len - 1])
+    createIconByIndexIfNotExist(existItems[len - 1], true)
 }
 
 let createIconByIndexIfNotExist = (index, isAdd) => {

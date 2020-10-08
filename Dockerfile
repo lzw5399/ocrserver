@@ -12,10 +12,7 @@ RUN rm -rf /etc/apt/sources.list && \
     echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free" >> /etc/apt/sources.list && \
     apt-get update
 
-RUN cat /etc/apt/sources.list
-
-RUN apt-get -qq update \
-  && apt-get install -y \
+RUN apt-get install -y \
     libleptonica-dev \
     libtesseract-dev \
     tesseract-ocr
@@ -26,7 +23,7 @@ RUN mkdir publish && cp bank-ocr publish && \
     cp -r app publish && mkdir publish/config && \
     cp config/appsettings.yaml publish/config/
 
-# tesseract需要动态链接到cpp的二进制文件，不能用scratch和alpine等基础镜像
+# tesseract需要动态链接到cpp的二进制文件，用scratch和alpine等基础镜像很麻烦
 # https://stackoverflow.com/questions/56832363/docker-standard-init-linux-go211-exec-user-process-caused-no-such-file-or-di
 FROM ubuntu:latest
 

@@ -21,7 +21,7 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-.pixel-container {
+.pixel-group {
     height: 38px;
     line-height: 38px;
 }
