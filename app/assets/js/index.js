@@ -374,6 +374,7 @@ let removeErrorIfExist = () => {
 
 let refreshIconShown = () => {
     if (existItems.length === 1) {
+        removeShieldOfArgusIfExist(existItems[0])
         removeIconByIndexIfExist(existItems[0], false)
         createIconByIndexIfNotExist(existItems[0], true)
         return
