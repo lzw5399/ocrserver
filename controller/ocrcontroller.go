@@ -24,16 +24,6 @@ const (
 	INVALID_BASE64_MSG   = "invalid BASE64 string, please double check!"
 )
 
-// @Tags ocr
-// @Summary OCR识别上传的整张图片
-// @Accept  x-www-form-urlencoded
-// @Produce json
-// @param file formData file true "图片文件"
-// @param languages formData string false "可选项: 指定要识别的语言种类，如eng(英文) chi_sim(简体中文)，可以用逗号隔开指定多个, 不指定默认是eng"
-// @param whitelist formData string false "可选项: 为空检测全部字符。如果填写，仅会检测白名单之内的字符"
-// @param hocrMode formData bool false "可选项: 是否开始HOCR，一般默认为false"
-// @Success 200 {object} response.HttpResponse
-// @Router /api/ocr/file [post]
 func ScanFile(c *gin.Context) {
 	var r request.FileFormRequest
 	if err := c.ShouldBind(&r); err != nil {
@@ -79,17 +69,6 @@ func ScanFile(c *gin.Context) {
 	}
 }
 
-// @Tags ocr
-// @Summary OCR识别像素点裁剪之后的图片文字
-// @Accept  x-www-form-urlencoded
-// @Produce json
-// @param file formData file true "图片文件"
-// @param matrixPixels formData string true "裁剪像素点。必须是下面格式的合法json字符串： [{ pointA: {x: 127, y: 249}, pointB: {x: 983, y: 309}}]"
-// @param languages formData string false "可选项: 指定要识别的语言种类，如eng(英文) chi_sim(简体中文)，可以用逗号隔开指定多个, 不指定默认是eng"
-// @param whitelist formData string false "可选项: 为空检测全部字符。如果填写，仅会检测白名单之内的字符"
-// @param hocrMode formData bool false "可选项: 是否开始HOCR，一般默认为false"
-// @Success 200 {object} response.HttpResponse
-// @Router /api/ocr/scan-crop-file [post]
 func ScanCropFile(c *gin.Context) {
 	var r request.FileWithPixelPointRequest
 	if err := c.ShouldBind(&r); err != nil {
@@ -149,13 +128,6 @@ func ScanCropFile(c *gin.Context) {
 	}
 }
 
-// @Tags ocr
-// @Summary OCR识别BASE64格式的图片
-// @Accept  json
-// @Produce json
-// @param file body request.Base64Request true "request"
-// @Success 200 {object} response.HttpResponse
-// @Router /api/ocr/base64 [post]
 func Base64(c *gin.Context) {
 	var r request.Base64Request
 	if err := c.ShouldBind(&r); err != nil {
