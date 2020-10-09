@@ -45,7 +45,7 @@ func ScanFile(c *gin.Context) {
 		return
 	}
 
-	// 针对像素坐标点进行裁剪并灰度化
+	// 灰度化
 	img, err := service.GrayImage(upload)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
@@ -53,7 +53,7 @@ func ScanFile(c *gin.Context) {
 		return
 	}
 
-	// 根据format类型返回ocr最终的值
+	// 根据hocrMode类型返回ocr最终的值
 	text, err := service.GetTextFromImage(img, contentType, r)
 
 	if err != nil {
@@ -79,13 +79,13 @@ func ScanCropFile(c *gin.Context) {
 	// 绑定像素点 (gin的bind不能绑定formdata的对象数组)
 	b := c.PostFormArray("matrixPixels")
 	if len(b) == 0 {
-		response.FailWithMsg(c, http.StatusBadRequest, "matrixPixels invalid.")
+		response.FailWithMsg(c, http.StatusBadRequest, "matrixPixels is empty.")
 		return
 	}
 	var matrixPixels []request.MatrixPixel
 	err := json.Unmarshal([]byte(b[0]), &matrixPixels)
 	if err != nil {
-		response.FailWithMsg(c, http.StatusBadRequest, "matrixPixels invalid.反序列化失败")
+		response.FailWithMsg(c, http.StatusBadRequest, "matrixPixels is not legally required json.")
 		return
 	}
 	r.MatrixPixels = matrixPixels
@@ -131,10 +131,11 @@ func ScanCropFile(c *gin.Context) {
 func Base64(c *gin.Context) {
 	var r request.Base64Request
 	if err := c.ShouldBind(&r); err != nil {
-		response.FailWithMsg(c, http.StatusBadRequest, "bing faaa")
+		response.Failed(c, http.StatusBadRequest)
 		return
 	}
 
+	// 确保是合法的base64 并解码成[]byte
 	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
 	buf, err := base64.StdEncoding.DecodeString(r.Base64)
 	if err != nil {
@@ -142,6 +143,7 @@ func Base64(c *gin.Context) {
 		return
 	}
 
+	// ocr识别[]byte
 	text, err := service.OcrTextFromBytes(r.OcrBase, buf)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
