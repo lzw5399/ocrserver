@@ -1,43 +1,32 @@
 /**
  * @Author: lzw5399
  * @Date: 2020/9/30 14:25
- * @Desc: index page controller
+ * @Desc: home page controller
  */
 package controller
 
 import (
 	"net/http"
 
+	"bank-ocr/global"
+	"bank-ocr/global/response"
+	"bank-ocr/service"
+
 	"github.com/gin-gonic/gin"
-	"github.com/otiai10/gosseract/v2"
-	"github.com/otiai10/marmoset"
 )
 
-func Index(c *gin.Context){
+func Index(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"AppName": "bank-ocr",
+		"AppName": global.BANK_CONFIG.App.Name,
 	})
 }
 
-func Status(c *gin.Context) {
-	langs, err := gosseract.GetAvailableLanguages()
-
+func Info(c *gin.Context) {
+	info, err := service.GetTesseractInfo()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
+		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
 
-	client := gosseract.NewClient()
-	defer client.Close()
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Hello!",
-		"version": version,
-		"tesseract": marmoset.P{
-			"version":   client.Version(),
-			"languages": langs,
-		},
-	})
+	response.OkWithData(c, info)
 }

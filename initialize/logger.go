@@ -18,7 +18,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat/go-file-rotatelogs"
-	oplogging "github.com/op/go-logging"
+	golog "github.com/op/go-logging"
 )
 
 const (
@@ -36,19 +36,22 @@ func init() {
 	if c.Prefix == "" {
 		_ = fmt.Errorf("logger prefix not found")
 	}
-	logger := oplogging.MustGetLogger(MODULE)
-	var backends []oplogging.Backend
+	logger := golog.MustGetLogger(MODULE)
+	var backends []golog.Backend
 	registerStdout(c, &backends)
-	if fileWriter := registerFile(c, &backends); fileWriter != nil {
-		gin.DefaultWriter = io.MultiWriter(fileWriter, os.Stdout)
+	if c.LogFile {
+		if fileWriter := registerFile(c, &backends); fileWriter != nil {
+			gin.DefaultWriter = io.MultiWriter(fileWriter, os.Stdout)
+		}
 	}
-	oplogging.SetBackend(backends...)
+
+	golog.SetBackend(backends...)
 	global.BANK_LOGGER = logger
 }
 
-func registerStdout(c config.Log, backends *[]oplogging.Backend) {
+func registerStdout(c config.Log, backends *[]golog.Backend) {
 	if c.Stdout != "" {
-		level, err := oplogging.LogLevel(c.Stdout)
+		level, err := golog.LogLevel(c.Stdout)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -56,7 +59,7 @@ func registerStdout(c config.Log, backends *[]oplogging.Backend) {
 	}
 }
 
-func registerFile(c config.Log, backends *[]oplogging.Backend) io.Writer {
+func registerFile(c config.Log, backends *[]golog.Backend) io.Writer {
 	if c.File != "" {
 		if !util.PathExists(LOG_DIR) {
 			// directory not exist
@@ -75,7 +78,7 @@ func registerFile(c config.Log, backends *[]oplogging.Backend) io.Writer {
 		if err != nil {
 			fmt.Println(err)
 		}
-		level, err := oplogging.LogLevel(c.File)
+		level, err := golog.LogLevel(c.File)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -86,19 +89,19 @@ func registerFile(c config.Log, backends *[]oplogging.Backend) io.Writer {
 	return nil
 }
 
-func createBackend(w io.Writer, c config.Log, level oplogging.Level) oplogging.Backend {
-	backend := oplogging.NewLogBackend(w, c.Prefix, 0)
+func createBackend(w io.Writer, c config.Log, level golog.Level) golog.Backend {
+	backend := golog.NewLogBackend(w, c.Prefix, 0)
 	stdoutWriter := false
 	if w == os.Stdout {
 		stdoutWriter = true
 	}
 	format := getLogFormatter(c, stdoutWriter)
-	backendLeveled := oplogging.AddModuleLevel(oplogging.NewBackendFormatter(backend, format))
+	backendLeveled := golog.AddModuleLevel(golog.NewBackendFormatter(backend, format))
 	backendLeveled.SetLevel(level, MODULE)
 	return backendLeveled
 }
 
-func getLogFormatter(c config.Log, stdoutWriter bool) oplogging.Formatter {
+func getLogFormatter(c config.Log, stdoutWriter bool) golog.Formatter {
 	pattern := defaultFormatter
 	if !stdoutWriter {
 		// Color is only required for console output
@@ -110,5 +113,6 @@ func getLogFormatter(c config.Log, stdoutWriter bool) oplogging.Formatter {
 		// Remove %{logfile} tag
 		pattern = strings.Replace(pattern, "%{longfile}", "", -1)
 	}
-	return oplogging.MustStringFormatter(pattern)
+
+	return golog.MustStringFormatter(pattern)
 }

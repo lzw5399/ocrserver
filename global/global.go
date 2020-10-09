@@ -7,6 +7,7 @@ package global
 
 import (
 	"bank-ocr/config"
+
 	golog "github.com/op/go-logging"
 )
 

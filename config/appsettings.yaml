@@ -1,3 +1,10 @@
+app:
+  name: 'bank-ocr'
+
+ocr:
+  default-langs:
+    - eng
+
 log:
   prefix: '[bank-ocr]'
   stdout: 'DEBUG'

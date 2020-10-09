@@ -1,48 +1,21 @@
 # bank-ocr
 
-[![Build Status](https://travis-ci.org/otiai10/ocrserver.svg?branch=master)](https://travis-ci.org/otiai10/ocrserver)
+bank ocr服务, 基于[gosseract](https://github.com/otiai10/gosseract).
 
-Simple OCR server, as a small working sample for [gosseract](https://github.com/otiai10/gosseract).
+## 使用方式
 
-# Quick Start
+提供了两种服务使用方式
+- Web UI
+- RESTful API
 
-## Ready-Made Docker Image
+### Web UI
 
-```sh
-% docker run -p 8080:8080 otiai10/ocrserver
-# open http://localhost:8080
-```
+直接进入`根路由`即可看见
 
-cf. [docker](https://www.docker.com/products/docker-toolbox)
+![](http://pic.codepie.fun/img/20201008134110.png)
 
-## Development with Docker Image
+### RESTful API
 
-```sh
-% docker-compose up
-# open http://localhost:8080
-```
+提供了Swagger作为API文档, 进入`/swagger`路由下即可看见
 
-You need more languages?
-
-```sh
-% docker-compose build --build-arg LOAD_LANG=rus
-% docker-compose up
-```
-
-cf. [docker-compose](https://www.docker.com/products/docker-toolbox)
-
-## Manual Setup
-
-If you have tesseract-ocr  and library files on your machine
-
-```sh
-% go get github.com/otiai10/ocrserver/...
-% PORT=8080 ocrserver
-# open http://localhost:8080
-```
-
-cf. [gosseract](https://github.com/otiai10/gosseract)
-
-# Documents
-
-- [API Endpoints](https://github.com/otiai10/ocrserver/wiki/API-Endpoints)
+![](http://pic.codepie.fun/img/20201008134136.png)

@@ -7,6 +7,16 @@ package config
 
 type Config struct {
 	Log Log `yaml:"log"`
+	App App `yaml:"app"`
+	Ocr Ocr `yaml:"ocr"`
+}
+
+type App struct {
+	Name string `yaml:"name"`
+}
+
+type Ocr struct {
+	DefaultLangs []string `yaml:"default-langs"`
 }
 
 type Log struct {

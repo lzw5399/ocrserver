@@ -3,3 +3,6 @@ coverage.txt
 .idea
 .vscode
 bank-ocr
+bank-ocr.exe
+log
+appsettings.*.yaml
