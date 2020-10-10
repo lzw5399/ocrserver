@@ -12,6 +12,11 @@ import (
 )
 
 func main() {
+
+	//init
+	//os.Setenv("TESSDATA_PREFIX","C:\\Users\\yuzu\\sdk\\msys2\\mingw64\\share\\tessdata")
+
+
 	r := router.InitRouter()
 
 	port := os.Getenv("PORT")

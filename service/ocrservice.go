@@ -36,17 +36,19 @@ func GetTextFromImage(img image.Image, contentType string, re request.FileFormRe
 func OcrTextFromImages(imgs []image.Image, contentType string, re request.FileFormRequest) ([]string, error) {
 	var results []string
 
+	global.BANK_LOGGER.Debug("start ocr  image")
 	for _, img := range imgs {
 		buf, err := imageToBytes(img, contentType)
 
 		if err != nil {
 			return nil, err
 		}
-
+		global.BANK_LOGGER.Debug(" ocr one image")
 		result, err := OcrTextFromBytes(re.OcrBase, buf)
 		if err != nil {
 			return nil, err
 		}
+		global.BANK_LOGGER.Debug(" ocr one image result="+result)
 
 		results = append(results, result)
 	}
@@ -81,6 +83,7 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 		return "", err
 	}
 
+	client.Languages = global.BANK_CONFIG.Ocr.DefaultLangs
 	client.Languages = global.BANK_CONFIG.Ocr.DefaultLangs
 
 	if req.Languages != "" {

@@ -39,7 +39,7 @@ RUN apt-get -qq update \
 
 # 安装语言包
 RUN apt-get install -y \
-  tesseract-ocr-chi-sim
+  tesseract-ocr-eng
   # tesseract-ocr-chi-tra 繁体中文
 
 ENV GIN_MODE=release \

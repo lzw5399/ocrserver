@@ -54,6 +54,7 @@ func ScanFile(c *gin.Context) {
 	}
 
 	// 根据hocrMode类型返回ocr最终的值
+	global.BANK_LOGGER.Debug("start ocring")
 	text, err := service.GetTextFromImage(img, contentType, r)
 
 	if err != nil {
@@ -61,6 +62,7 @@ func ScanFile(c *gin.Context) {
 		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
+	global.BANK_LOGGER.Debug("end ocring ok")
 
 	if r.HOCRMode {
 		response.OkWithPureData(c, text)
@@ -114,12 +116,14 @@ func ScanCropFile(c *gin.Context) {
 	}
 
 	// 裁剪之后的图片进行ocr识别
+	global.BANK_LOGGER.Debug("start ocring")
 	texts, err := service.OcrTextFromImages(imgs, contentType, r.ToFileFormRequest())
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
 		return
 	}
+	global.BANK_LOGGER.Debug("end ocring ok")
 
 	if r.HOCRMode {
 		response.OkWithPureData(c, texts)
