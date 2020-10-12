@@ -43,7 +43,7 @@ func EnsureFileType(f multipart.File) (bool, string, error) {
 }
 
 // 像素点切割和灰度化, 返回image切片
-func CropAndGrayImage(f multipart.File, re request.FileWithPixelPointRequest) ([]image.Image, error) {
+func CropAndGrayImage(f  io.Reader, re [] request.MatrixPixel) ([]image.Image, error) {
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, f); err != nil {
 		return nil, err
@@ -56,9 +56,9 @@ func CropAndGrayImage(f multipart.File, re request.FileWithPixelPointRequest) ([
 		return nil, err
 	}
 
-	imgs := make([]image.Image, len(re.MatrixPixels))
+	imgs := make([]image.Image, len(re))
 
-	for i, v := range re.MatrixPixels {
+	for i, v := range re {
 		var tempImg image.Image = imaging.Crop(img, image.Rect(v.PointA.X, v.PointA.Y, v.PointB.X, v.PointB.Y))
 		tempImg = imaging.Grayscale(tempImg)
 		imgs[i] = tempImg

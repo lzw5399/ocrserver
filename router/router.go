@@ -44,6 +44,7 @@ func InitRouter() *gin.Engine {
 		ocrGroup.POST("file", controller.ScanFile)
 		ocrGroup.POST("scan-crop-file", controller.ScanCropFile)
 		ocrGroup.POST("base64", controller.Base64)
+		ocrGroup.POST("scan-crop-base64", controller.ScanCropBase64)
 	}
 
 	return r

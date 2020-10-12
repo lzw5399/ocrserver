@@ -6,6 +6,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
@@ -108,7 +109,7 @@ func ScanCropFile(c *gin.Context) {
 	}
 
 	// 针对像素坐标点进行裁剪并灰度化
-	imgs, err := service.CropAndGrayImage(upload, r)
+	imgs, err := service.CropAndGrayImage(upload, r.MatrixPixels)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
@@ -131,6 +132,9 @@ func ScanCropFile(c *gin.Context) {
 		response.OkWithData(c, texts)
 	}
 }
+
+
+
 
 func Base64(c *gin.Context) {
 	var r request.Base64Request
@@ -160,4 +164,49 @@ func Base64(c *gin.Context) {
 	} else {
 		response.OkWithData(c, text)
 	}
+}
+
+
+func ScanCropBase64(c *gin.Context) {
+	var r request.Base64RequestWithPixelPointRequest
+	if err := c.ShouldBind(&r); err != nil {
+		response.Failed(c, http.StatusBadRequest)
+		return
+	}
+
+
+	// 确保是合法的base64 并解码成[]byte
+	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
+	buf, err := base64.StdEncoding.DecodeString(r.Base64)
+	if err != nil {
+		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+		return
+	}
+
+	upload:= bytes.NewReader(buf)
+	// 针对像素坐标点进行裁剪并灰度化
+	imgs, err := service.CropAndGrayImage(upload, r.MatrixPixels)
+	if err != nil {
+		global.BANK_LOGGER.Error(err)
+		response.Failed(c, http.StatusInternalServerError)
+		return
+	}
+
+	// 裁剪之后的图片进行ocr识别
+	global.BANK_LOGGER.Debug("start ocring")
+	texts, err := service.OcrTextFromImages(imgs, "image/png", r.ToFileFormRequest())
+	if err != nil {
+		global.BANK_LOGGER.Error(err)
+		response.Failed(c, http.StatusInternalServerError)
+		return
+	}
+	global.BANK_LOGGER.Debug("end ocring ok")
+
+	if r.HOCRMode {
+		response.OkWithPureData(c, texts)
+	} else {
+		response.OkWithData(c, texts)
+	}
+
+
 }

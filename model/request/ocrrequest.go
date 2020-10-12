@@ -22,6 +22,12 @@ type Base64Request struct {
 	Base64 string `json:"base64" binding:"required"`
 }
 
+type Base64RequestWithPixelPointRequest struct {
+	OcrBase
+	Base64 string `json:"base64" binding:"required"`
+	MatrixPixels []MatrixPixel `json:"matrixPixels"`
+}
+
 type OcrBase struct {
 	Languages string `form:"languages" json:"languages"`
 	Whitelist string `form:"whitelist" json:"whitelist"`
@@ -42,6 +48,18 @@ type Pixel struct {
 }
 
 func (r *FileWithPixelPointRequest) ToFileFormRequest() FileFormRequest {
+	req := FileFormRequest{
+		OcrBase: OcrBase{
+			Languages: r.Languages,
+			Whitelist: r.Whitelist,
+			HOCRMode:  r.HOCRMode,
+		},
+	}
+
+	return req
+}
+
+func (r *Base64RequestWithPixelPointRequest) ToFileFormRequest() FileFormRequest {
 	req := FileFormRequest{
 		OcrBase: OcrBase{
 			Languages: r.Languages,
