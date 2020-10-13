@@ -56,7 +56,7 @@ func ScanFile(c *gin.Context) {
 
 	// 根据hocrMode类型返回ocr最终的值
 	global.BANK_LOGGER.Debug("start ocring")
-	text, err := service.GetTextFromImage(img, contentType, r)
+	text, err := service.GetTextFromImage(img, contentType, r.OcrBase)
 
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
@@ -118,7 +118,7 @@ func ScanCropFile(c *gin.Context) {
 
 	// 裁剪之后的图片进行ocr识别
 	global.BANK_LOGGER.Debug("start ocring")
-	texts, err := service.OcrTextFromImages(imgs, contentType, r.ToFileFormRequest())
+	texts, err := service.OcrTextFromImages(imgs, contentType, r.OcrBase)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
@@ -132,9 +132,6 @@ func ScanCropFile(c *gin.Context) {
 		response.OkWithData(c, texts)
 	}
 }
-
-
-
 
 func Base64(c *gin.Context) {
 	var r request.Base64Request
@@ -166,14 +163,12 @@ func Base64(c *gin.Context) {
 	}
 }
 
-
 func ScanCropBase64(c *gin.Context) {
-	var r request.Base64RequestWithPixelPointRequest
+	var r request.Base64WithPixelPointRequest
 	if err := c.ShouldBind(&r); err != nil {
 		response.Failed(c, http.StatusBadRequest)
 		return
 	}
-
 
 	// 确保是合法的base64 并解码成[]byte
 	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
@@ -194,7 +189,7 @@ func ScanCropBase64(c *gin.Context) {
 
 	// 裁剪之后的图片进行ocr识别
 	global.BANK_LOGGER.Debug("start ocring")
-	texts, err := service.OcrTextFromImages(imgs, "image/png", r.ToFileFormRequest())
+	texts, err := service.OcrTextFromImages(imgs, "image/png", r.OcrBase)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
@@ -207,6 +202,4 @@ func ScanCropBase64(c *gin.Context) {
 	} else {
 		response.OkWithData(c, texts)
 	}
-
-
 }

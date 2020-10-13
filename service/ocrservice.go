@@ -23,17 +23,17 @@ import (
 )
 
 // 从 image.Image 获取 string
-func GetTextFromImage(img image.Image, contentType string, re request.FileFormRequest) (string, error) {
+func GetTextFromImage(img image.Image, contentType string, re request.OcrBase) (string, error) {
 	buf, err := imageToBytes(img, contentType)
 	if err != nil {
 		return "", err
 	}
 
-	return OcrTextFromBytes(re.OcrBase, buf)
+	return OcrTextFromBytes(re, buf)
 }
 
 // 从 []image.Image 获取 []string
-func OcrTextFromImages(imgs []image.Image, contentType string, re request.FileFormRequest) ([]string, error) {
+func OcrTextFromImages(imgs []image.Image, contentType string, re request.OcrBase) ([]string, error) {
 	var results []string
 
 	global.BANK_LOGGER.Debug("start ocr  image")
@@ -44,11 +44,11 @@ func OcrTextFromImages(imgs []image.Image, contentType string, re request.FileFo
 			return nil, err
 		}
 		global.BANK_LOGGER.Debug(" ocr one image")
-		result, err := OcrTextFromBytes(re.OcrBase, buf)
+		result, err := OcrTextFromBytes(re, buf)
 		if err != nil {
 			return nil, err
 		}
-		global.BANK_LOGGER.Debug(" ocr one image result="+result)
+		global.BANK_LOGGER.Debug(" ocr one image result=" + result)
 
 		results = append(results, result)
 	}
@@ -83,7 +83,6 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 		return "", err
 	}
 
-	client.Languages = global.BANK_CONFIG.Ocr.DefaultLangs
 	client.Languages = global.BANK_CONFIG.Ocr.DefaultLangs
 
 	if req.Languages != "" {
