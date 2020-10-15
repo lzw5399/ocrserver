@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cboyce－HTML5图片预览</title>
+    <style type="text/css">
+        /*主容器*/
+        .container {
+            width: 90%;
+            margin-top: 20px;
+        }
+
+        /*图片预览容器*/
+        .container .img-prev-container {
+            width: 200px;
+            height: 100px;
+            margin: 10px auto;
+            border: 1px solid #ccc;
+        }
+
+        /*预览图片样式*/
+        .container .img-prev-container img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="img-prev-container" id="img-perv-div">
+    </div>
+    <input type="file" value="请选择图片" id="fileSelecter"/>
+</div>
+</body>
+<script>
+    window.onload = function () {
+
+//预览图的容器
+        var _img_container = getDomById('img-perv-div')
+//创建reader对象
+        var reader = new FileReader();
+
+//触发 change 事件
+        getDomById('fileSelecter').onchange = function (event) {
+            //获取文件对象
+            var file = event.target.files[0];
+
+            //读取完成后触发
+            reader.onload = function (ev) {
+                //获取图片的url
+                var _img_src = ev.target.result;
+                //添加预览图片到容器框
+                showPrevImg(_img_container, _img_src);
+            }
+            //获取到数据的url 图片将转成 base64 格式
+            reader.readAsDataURL(file);
+        }
+
+        //添加拖放支持
+        _img_container.addEventListener('dragover', function (ev) {
+            ev.preventDefault();//阻止默认事件。比如说Chrome是直接将图片用浏览器打开
+        }, false)
+
+        _img_container.addEventListener('drop', function (ev) {
+            ev.preventDefault();
+            reader.onload = function (ev) {
+                //获取图片的url
+                var _img_src = ev.target.result;
+
+                //图片预览处理
+                showPrevImg(_img_container, _img_src);
+            }
+            reader.readAsDataURL(ev.dataTransfer.files[0])
+        }, false)
+    }
+
+    //简化 document.getElementById() 函数
+    function getDomById(id) {
+        return document.getElementById(id);
+    }
+
+    //图片预览处理函数
+    function showPrevImg(_img_container, _img_src) {
+//添加预览图片到容器框
+        var _imgs = _img_container.getElementsByTagName('img');
+        _img_container.debugger
+//容器中没有则创建，有则修改 src 属性
+        if (!_imgs.lenght) {
+            _imgs[0] = document.createElement('img');
+            _imgs[0].setAttribute('src', _img_src);
+            _img_container.appendChild(_imgs[0]);
+        } else {
+            _imgs[0].setAttribute('src', _img_src);
+        }
+    }
+</script>
+</html>
