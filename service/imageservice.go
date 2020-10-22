@@ -6,13 +6,15 @@
 package service
 
 import (
-	"bank-ocr/model/request"
 	"bytes"
-	"github.com/disintegration/imaging"
 	"image"
 	"io"
 	"mime/multipart"
 	"net/http"
+
+	"bank-ocr/model/request"
+
+	"github.com/disintegration/imaging"
 )
 
 var supportImgType = [4]string{
@@ -84,5 +86,3 @@ func GrayImage(f multipart.File) (image.Image, error) {
 	img = imaging.Grayscale(img)
 	return img, nil
 }
-
-

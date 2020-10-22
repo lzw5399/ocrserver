@@ -91,7 +91,7 @@ window.onload = () => {
             req.path = "/api/ocr/scan-crop-file";
             req.data = new FormData();
             if (isFinalValid()) {
-                req.data.append("matrixPixels", genMatrixPixels());
+                req.data.append("matrixPixels", genMatrixPixelsStr());
             } else {
                 return showPixelErrorMsg()
             }
@@ -99,9 +99,20 @@ window.onload = () => {
             if (ui.whitelist.value) req.data.append("whitelist", ui.whitelist.value);
             if (ui.hocr.checked) req.data.append("hocrMode", true);
             req.data.append("file", ui.file.files[0]);
-        } else if (/^data:.+/.test(ui.image.src)) {
+        } else if (/^data:.+/.test(ui.image.src) && isEmpty()) {
             req.path = "/api/ocr/base64";
             let data = {base64: ui.image.src, "json-content-type": true};
+            if (ui.langs.value) data["languages"] = ui.langs.value;
+            if (ui.whitelist.value) data["whitelist"] = ui.whitelist.value;
+            if (ui.hocr.checked) data["hocrMode"] = true;
+            req.data = JSON.stringify(data);
+        } else if (/^data:.+/.test(ui.image.src) && !isEmpty()) {
+            if (!isFinalValid())
+                return showPixelErrorMsg()
+
+            req.path = "/api/ocr/scan-crop-base64";
+            let data = {base64: ui.image.src, "json-content-type": true};
+            data["matrixPixels"] = genMatrixPixelsArr()
             if (ui.langs.value) data["languages"] = ui.langs.value;
             if (ui.whitelist.value) data["whitelist"] = ui.whitelist.value;
             if (ui.hocr.checked) data["hocrMode"] = true;
@@ -109,6 +120,7 @@ window.onload = () => {
         } else {
             return window.alert("no image input set");
         }
+
         return req;
     };
 
@@ -285,14 +297,20 @@ let getLastDivId = (index) => {
     return getLastDivId(index + 1)
 }
 
-let genMatrixPixels = () => {
+let genMatrixPixelsArr = () => {
     let finalArr = []
 
     for (let i = 0; i < existItems.length; i++) {
         finalArr.push(getPointsByIndex(existItems[i]))
     }
 
-    return JSON.stringify(finalArr)
+    return finalArr
+}
+
+let genMatrixPixelsStr = () => {
+    let arr = genMatrixPixelsArr()
+
+    return JSON.stringify(arr)
 }
 
 let isEmpty = () => {
