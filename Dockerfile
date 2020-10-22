@@ -25,11 +25,12 @@ RUN mkdir publish && cp bank-ocr publish && \
 
 # tesseract需要动态链接到cpp的二进制文件，用scratch和alpine等基础镜像很麻烦
 # https://stackoverflow.com/questions/56832363/docker-standard-init-linux-go211-exec-user-process-caused-no-such-file-or-di
-FROM ubuntu:latest
+FROM ubuntu:20.04
 
 WORKDIR /app
 
 COPY --from=builder /app/publish .
+
 
 RUN apt-get -qq update \
   && apt-get install -y \
@@ -39,8 +40,8 @@ RUN apt-get -qq update \
 
 # 安装语言包
 RUN apt-get install -y \
-  tesseract-ocr-eng
-  # tesseract-ocr-chi-tra 繁体中文
+  tesseract-ocr-eng \
+  tesseract-ocr-chi-sim
 
 ENV GIN_MODE=release \
     PORT=8080
