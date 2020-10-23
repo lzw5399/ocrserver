@@ -29,9 +29,10 @@ type Base64WithPixelPointRequest struct {
 }
 
 type OcrBase struct {
-	Languages string `form:"languages" json:"languages"`
-	Whitelist string `form:"whitelist" json:"whitelist"`
-	HOCRMode  bool   `form:"hocrMode" json:"hocrMode"`
+	Languages    string `form:"languages" json:"languages"`
+	Whitelist    string `form:"whitelist" json:"whitelist"`
+	HOCRMode     bool   `form:"hocrMode" json:"hocrMode"`
+	TrimLineFeed bool   `form:"trimLineFeed" json:"trimLineFeed"`
 }
 
 // 两个像素坐标点能圈出一个矩阵

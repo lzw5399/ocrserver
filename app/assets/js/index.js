@@ -32,6 +32,7 @@ window.onload = () => {
         langs: document.querySelector("input[name=langs]"),
         whitelist: document.querySelector("input[name=whitelist]"),
         hocr: document.querySelector("input[name=hocr]"),
+        trimLineFeed: document.querySelector("input[name=trimLineFeed]"),
         submit: document.getElementById("submit"),
         loading: document.querySelector("button#submit>span:first-child"),
         standby: document.querySelector("button#submit>span:last-child"),
@@ -86,6 +87,7 @@ window.onload = () => {
             if (ui.langs.value) req.data.append("languages", ui.langs.value);
             if (ui.whitelist.value) req.data.append("whitelist", ui.whitelist.value);
             if (ui.hocr.checked) req.data.append("hocrMode", true);
+            if (ui.trimLineFeed.checked) req.data.append("trimLineFeed", true);
             req.data.append("file", ui.file.files[0]);
         } else if (ui.file.files && ui.file.files.length !== 0 && !isEmpty()) {
             req.path = "/api/ocr/scan-crop-file";
@@ -95,9 +97,10 @@ window.onload = () => {
             } else {
                 return showPixelErrorMsg()
             }
-            if (ui.langs.value) req.data.append("languages", ui.langs.value);
             if (ui.whitelist.value) req.data.append("whitelist", ui.whitelist.value);
+            if (ui.langs.value) req.data.append("languages", ui.langs.value);
             if (ui.hocr.checked) req.data.append("hocrMode", true);
+            if (ui.trimLineFeed.checked) req.data.append("trimLineFeed", true);
             req.data.append("file", ui.file.files[0]);
         } else if (/^data:.+/.test(ui.image.src) && isEmpty()) {
             req.path = "/api/ocr/base64";
@@ -105,6 +108,7 @@ window.onload = () => {
             if (ui.langs.value) data["languages"] = ui.langs.value;
             if (ui.whitelist.value) data["whitelist"] = ui.whitelist.value;
             if (ui.hocr.checked) data["hocrMode"] = true;
+            if (ui.trimLineFeed.checked) data["trimLineFeed"] = true;
             req.data = JSON.stringify(data);
         } else if (/^data:.+/.test(ui.image.src) && !isEmpty()) {
             if (!isFinalValid())
@@ -113,9 +117,10 @@ window.onload = () => {
             req.path = "/api/ocr/scan-crop-base64";
             let data = {base64: ui.image.src, "json-content-type": true};
             data["matrixPixels"] = genMatrixPixelsArr()
-            if (ui.langs.value) data["languages"] = ui.langs.value;
             if (ui.whitelist.value) data["whitelist"] = ui.whitelist.value;
+            if (ui.langs.value) data["languages"] = ui.langs.value;
             if (ui.hocr.checked) data["hocrMode"] = true;
+            if (ui.trimLineFeed.checked) data["trimLineFeed"] = true;
             req.data = JSON.stringify(data);
         } else {
             return window.alert("no image input set");

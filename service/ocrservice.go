@@ -79,7 +79,8 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 	client := gosseract.NewClient()
 	defer client.Close()
 
-	if err := client.SetImageFromBytes(bytes); err != nil {
+	var err error
+	if err = client.SetImageFromBytes(bytes); err != nil {
 		return "", err
 	}
 
@@ -95,11 +96,21 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 		}
 	}
 
+	var text string
 	if req.HOCRMode {
-		return client.HOCRText()
+		text, err = client.HOCRText()
+	} else {
+		text, err = client.Text()
+	}
+	if err != nil {
+		return "", err
 	}
 
-	return client.Text()
+	if req.TrimLineFeed {
+		text = strings.Replace(text, "\n", "", -1)
+	}
+
+	return text, nil
 }
 
 func imageToBytes(img image.Image, contentType string) ([]byte, error) {
