@@ -66,3 +66,7 @@ input[type=number] {
     width: 50%;
     float: left;
 }
+
+.content-checkbox > input + label {
+    cursor: pointer;
+}
