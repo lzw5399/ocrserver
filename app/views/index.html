@@ -81,11 +81,14 @@
                 </div>
 
                 <div class="field">
-                    <lable class="label">hOCR模式</lable>
-                    <label class="checkbox">
-                        <input type="checkbox" name="hocr"> More about hOCR → <a
-                                href="https://en.wikipedia.org/wiki/HOCR">https://en.wikipedia.org/wiki/HOCR</a>
-                    </label>
+                    <div class="content-checkbox">
+                        <input type="checkbox" name="trimLineFeed" id="trimLineFeed">
+                        <lable class="label" for="trimLineFeed" style="display: contents">结果省略换行符</lable>
+                    </div>
+                    <div class="content-checkbox">
+                        <input type="checkbox" name="hocr" id="hocrMode">
+                        <lable class="label" for="hocrMode" style="display: contents">hOCR模式</lable>
+                    </div>
                 </div>
 
             </div>
