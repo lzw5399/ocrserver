@@ -61,3 +61,12 @@ input[type=number] {
 .img-container > img[src=""] {
     display: none;
 }
+
+.content-checkbox {
+    width: 50%;
+    float: left;
+}
+
+.content-checkbox > input + label {
+    cursor: pointer;
+}
