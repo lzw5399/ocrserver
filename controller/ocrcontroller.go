@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"bank-ocr/global"
 	"bank-ocr/global/response"
@@ -141,7 +142,7 @@ func Base64(c *gin.Context) {
 	}
 
 	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
+	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
 	buf, err := base64.StdEncoding.DecodeString(r.Base64)
 	if err != nil {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
@@ -169,16 +170,17 @@ func ScanCropBase64(c *gin.Context) {
 		response.Failed(c, http.StatusBadRequest)
 		return
 	}
+	contenttype := findContenType(r.Base64)
 
 	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
+	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
 	buf, err := base64.StdEncoding.DecodeString(r.Base64)
 	if err != nil {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
 		return
 	}
 
-	upload:= bytes.NewReader(buf)
+	upload := bytes.NewReader(buf)
 	// 针对像素坐标点进行裁剪并灰度化
 	imgs, err := service.CropAndGrayImage(upload, r.MatrixPixels)
 	if err != nil {
@@ -189,7 +191,7 @@ func ScanCropBase64(c *gin.Context) {
 
 	// 裁剪之后的图片进行ocr识别
 	global.BANK_LOGGER.Debug("start ocring")
-	texts, err := service.OcrTextFromImages(imgs, "image/png", r.OcrBase)
+	texts, err := service.OcrTextFromImages(imgs, contenttype, r.OcrBase)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
@@ -202,4 +204,21 @@ func ScanCropBase64(c *gin.Context) {
 	} else {
 		response.OkWithData(c, texts)
 	}
+}
+
+func findContenType(r string) string {
+
+	i := strings.Index(r, "png")
+	if i != -1 {
+		return  "image/png"
+	}
+	i = strings.Index(r, "jpeg")
+	if i != -1 {
+		return   "image/jpeg"
+	}
+	i = strings.Index(r, "jpg")
+	if i != -1 {
+		return   "image/jpeg"
+	}
+	return ""
 }
