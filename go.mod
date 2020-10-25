@@ -23,6 +23,7 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/otiai10/gosseract/v2 v2.2.4
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/satori/go.uuid v1.2.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.8-0.20200921161410-33e4ac3219fa
@@ -34,5 +35,6 @@ require (
 	golang.org/x/sys v0.0.0-20201005065044-765f4ea38db3 // indirect
 	golang.org/x/tools v0.0.0-20201002184944-ecd9fd270d5d // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
+	gopkg.in/gographics/imagick.v2 v2.6.0
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )

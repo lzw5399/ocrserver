@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"bank-ocr/global"
 	"bank-ocr/global/response"
@@ -133,7 +134,7 @@ func ScanCropFile(c *gin.Context) {
 	}
 }
 
-func Base64(c *gin.Context) {
+func Base64Legacy(c *gin.Context) {
 	var r request.Base64Request
 	if err := c.ShouldBind(&r); err != nil {
 		response.Failed(c, http.StatusBadRequest)
@@ -141,7 +142,7 @@ func Base64(c *gin.Context) {
 	}
 
 	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
+	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
 	buf, err := base64.StdEncoding.DecodeString(r.Base64)
 	if err != nil {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
@@ -169,9 +170,10 @@ func ScanCropBase64(c *gin.Context) {
 		response.Failed(c, http.StatusBadRequest)
 		return
 	}
+	contenttype := findContenType(r.Base64)
 
 	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image\\/png;base64,").ReplaceAllString(r.Base64, "")
+	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
 	buf, err := base64.StdEncoding.DecodeString(r.Base64)
 	if err != nil {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
@@ -189,7 +191,7 @@ func ScanCropBase64(c *gin.Context) {
 
 	// 裁剪之后的图片进行ocr识别
 	global.BANK_LOGGER.Debug("start ocring")
-	texts, err := service.OcrTextFromImages(imgs, "image/png", r.OcrBase)
+	texts, err := service.OcrTextFromImages(imgs, contenttype, r.OcrBase)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
@@ -202,4 +204,84 @@ func ScanCropBase64(c *gin.Context) {
 	} else {
 		response.OkWithData(c, texts)
 	}
+}
+
+func Base64(c *gin.Context) {
+	var r request.Base64Request
+	if err := c.ShouldBind(&r); err != nil {
+		response.Failed(c, http.StatusBadRequest)
+		return
+	}
+
+	// 确保是合法的content-type
+	base64Str, isPdf, err := service.EnsureContentType(r.Base64)
+	if err != nil {
+		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+		return
+	}
+
+	// 一般的image返回的结果是string, pdf的话会是[]string
+	var finalData interface{}
+	if isPdf {
+		// pdf分页转成png，并获取[][]byte
+		bufArray, err := service.PdfToImgsThenGetBytes(base64Str)
+		if err != nil {
+			global.BANK_LOGGER.Error(err)
+			response.Failed(c, http.StatusInternalServerError)
+			return
+		}
+		global.BANK_LOGGER.Info("bufArray=", bufArray, "err=", err)
+
+		// ocr识别
+		var texts []string
+		for _, buf := range bufArray {
+			text, err := service.OcrTextFromBytes(r.OcrBase, buf)
+			if err != nil {
+				global.BANK_LOGGER.Error(err)
+				response.Failed(c, http.StatusInternalServerError)
+				return
+			}
+			texts = append(texts, text)
+		}
+		global.BANK_LOGGER.Info("识别出来的字符串=", texts)
+		finalData = texts
+	} else {
+		// 图片的base64走的逻辑
+		buf, err := base64.StdEncoding.DecodeString(base64Str)
+		if err != nil {
+			response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+			return
+		}
+
+		// ocr识别[]byte
+		finalData, err = service.OcrTextFromBytes(r.OcrBase, buf)
+		if err != nil {
+			global.BANK_LOGGER.Error(err)
+			response.Failed(c, http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if r.HOCRMode {
+		response.OkWithPureData(c, finalData)
+	} else {
+		response.OkWithData(c, finalData)
+	}
+}
+
+func findContenType(r string) string {
+
+	i := strings.Index(r, "png")
+	if i != -1 {
+		return  "image/png"
+	}
+	i = strings.Index(r, "jpeg")
+	if i != -1 {
+		return   "image/jpeg"
+	}
+	i = strings.Index(r, "jpg")
+	if i != -1 {
+		return   "image/jpeg"
+	}
+	return ""
 }
