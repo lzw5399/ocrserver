@@ -6,63 +6,67 @@
 package util
 
 import (
-	"bank-ocr/global"
 	"errors"
 	"fmt"
+	"image/png"
+	"os"
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"bank-ocr/global"
+
+	"github.com/gen2brain/go-fitz"
 )
 
 func PdfToImgs(filePath, dirToSave string) (imgs []string, err error) {
-	if !PathExists(filePath){
-		global.BANK_LOGGER.Info("不存在filePath")
+	if !PathExists(filePath) {
+		global.BANK_LOGGER.Error("不存在filePath")
 		err = errors.New("filePath doesn't exist")
 		return
 	}
 
-	if !PathExists(dirToSave){
-		global.BANK_LOGGER.Info("不存在dirToSave")
+	if !PathExists(dirToSave) {
+		global.BANK_LOGGER.Error("不存在dirToSave")
 		err = errors.New("dirToSave doesn't exist")
 		return
 	}
 
-	imagick.Initialize()
-	defer imagick.Terminate()
-
-	mw := imagick.NewMagickWand()
-	defer mw.Destroy()
-
-	// count page of pdf
-	if err = mw.PingImage(filePath); err != nil {
+	doc, err := fitz.New(filePath)
+	if err != nil {
 		return
 	}
-	pdfPages := mw.GetNumberImages()
+	defer doc.Close()
 
+	// 获取当前目录
+	dir, err := os.Getwd()
+	if err != nil {
+		return
+	}
+
+	// 从xxx.pdf获取xxx
 	fileName := strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
 
-	// pdf按页转换成png
-	for i := uint(0); i < pdfPages; i++ {
-		pageName := fmt.Sprintf("%s[%v]", filePath, i)
-		imgName := fmt.Sprintf("%s-%v.png", fileName, i)
-		imgPath := filepath.Join(dirToSave, imgName)
-
-		// clear resources associated with the wand
-		mw.Clear()
-
-		err = mw.ReadImage(pageName)
-		if err != nil {
+	for n := 0; n < doc.NumPage(); n++ {
+		img, e := doc.Image(n)
+		if e != nil {
+			err = e
 			return
 		}
 
-		mwc := mw.Clone()
-		err = mwc.WriteImage(imgPath)
-		if err != nil {
+		path := filepath.Join(dir, fmt.Sprintf("%s-%03d.png", fileName, n))
+		f, e := os.Create(path)
+		if e != nil {
+			err = e
 			return
 		}
 
-		imgs = append(imgs, imgName)
+		e = png.Encode(f, img)
+		if e != nil {
+			err = e
+			return
+		}
+		f.Close()
+		imgs = append(imgs, path)
 	}
 
 	return

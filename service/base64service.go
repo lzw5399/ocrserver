@@ -12,25 +12,25 @@ import (
 	"os"
 	"strings"
 
-	"bank-ocr/global"
 	"bank-ocr/util"
 
 	"github.com/satori/go.uuid"
 )
 
-var supportBase64Type = [5]string{
-	"data:image/png;base64,",
-	"data:image/jpeg;base64,",
-	"data:image/gif;base64,",
-	"data:image/tiff;base64,",
-	"data:application/pdf;base64,",
+var supportBase64TypeMap = map[string]string{
+	"image/png":       "data:image/png;base64,",
+	"image/jpeg":      "data:image/jpeg;base64,",
+	"image/gif":       "data:image/gif;base64,",
+	"image/tiff":      "data:image/tiff;base64,",
+	"application/pdf": "data:application/pdf;base64,",
 }
 
-func EnsureContentType(str string) (base64 string, isPdf bool, err error) {
-	for i, v := range supportBase64Type {
+func EnsureContentType(str string) (base64 string, isPdf bool, contentType string, err error) {
+	for k, v := range supportBase64TypeMap {
 		if strings.HasPrefix(str, v) {
 			base64 = str[len(v):]
-			if i == 4 {
+			contentType = k
+			if k == "application/pdf" {
 				isPdf = true
 			}
 			return
@@ -54,7 +54,9 @@ func PdfToImgsThenGetBytes(base64 string) ([][]byte, error) {
 	// pdf分页转成png
 	dirToSave, _ := os.Getwd()
 	imgs, err := util.PdfToImgs(filePath, dirToSave)
-	global.BANK_LOGGER.Info("util.PdfToImgs=", imgs)
+	if err != nil {
+		return nil, err
+	}
 	defer func() {
 		for _, path := range imgs {
 			os.Remove(path)
@@ -65,7 +67,6 @@ func PdfToImgsThenGetBytes(base64 string) ([][]byte, error) {
 	var finalArray [][]byte
 	for _, imgPath := range imgs {
 		byteArray, err := ioutil.ReadFile(imgPath)
-		global.BANK_LOGGER.Info("ioutil.ReadFile=", byteArray)
 		if err != nil {
 			return nil, err
 		}
