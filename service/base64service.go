@@ -17,19 +17,20 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-var supportBase64Type = [5]string{
-	"data:image/png;base64,",
-	"data:image/jpeg;base64,",
-	"data:image/gif;base64,",
-	"data:image/tiff;base64,",
-	"data:application/pdf;base64,",
+var supportBase64TypeMap = map[string]string{
+	"image/png":       "data:image/png;base64,",
+	"image/jpeg":      "data:image/jpeg;base64,",
+	"image/gif":       "data:image/gif;base64,",
+	"image/tiff":      "data:image/tiff;base64,",
+	"application/pdf": "data:application/pdf;base64,",
 }
 
-func EnsureContentType(str string) (base64 string, isPdf bool, err error) {
-	for i, v := range supportBase64Type {
+func EnsureContentType(str string) (base64 string, isPdf bool, contentType string, err error) {
+	for k, v := range supportBase64TypeMap {
 		if strings.HasPrefix(str, v) {
 			base64 = str[len(v):]
-			if i == 4 {
+			contentType = k
+			if k == "application/pdf" {
 				isPdf = true
 			}
 			return

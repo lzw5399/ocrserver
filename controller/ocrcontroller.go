@@ -10,8 +10,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"regexp"
-	"strings"
 	"time"
 
 	"bank-ocr/global"
@@ -24,7 +22,7 @@ import (
 
 const (
 	INVALID_IMG_TYPE_MSG = "invalid file or unsupported file type. Only support .jpg .jpeg .png .gif .tiff, please double check!"
-	INVALID_BASE64_MSG   = "invalid BASE64 string, please double check!"
+	INVALID_BASE64_MSG   = "invalid or unsupported BASE64 file type, please double check!"
 )
 
 func ScanFile(c *gin.Context) {
@@ -135,78 +133,6 @@ func ScanCropFile(c *gin.Context) {
 	}
 }
 
-func Base64Legacy(c *gin.Context) {
-	var r request.Base64Request
-	if err := c.ShouldBind(&r); err != nil {
-		response.Failed(c, http.StatusBadRequest)
-		return
-	}
-
-	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
-	buf, err := base64.StdEncoding.DecodeString(r.Base64)
-	if err != nil {
-		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
-		return
-	}
-
-	// ocr识别[]byte
-	text, err := service.OcrTextFromBytes(r.OcrBase, buf)
-	if err != nil {
-		global.BANK_LOGGER.Error(err)
-		response.Failed(c, http.StatusInternalServerError)
-		return
-	}
-
-	if r.HOCRMode {
-		response.OkWithPureData(c, text)
-	} else {
-		response.OkWithData(c, text)
-	}
-}
-
-func ScanCropBase64(c *gin.Context) {
-	var r request.Base64WithPixelPointRequest
-	if err := c.ShouldBind(&r); err != nil {
-		response.Failed(c, http.StatusBadRequest)
-		return
-	}
-	contenttype := findContenType(r.Base64)
-
-	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
-	buf, err := base64.StdEncoding.DecodeString(r.Base64)
-	if err != nil {
-		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
-		return
-	}
-
-	upload := bytes.NewReader(buf)
-	// 针对像素坐标点进行裁剪并灰度化
-	imgs, err := service.CropAndGrayImage(upload, r.MatrixPixels)
-	if err != nil {
-		global.BANK_LOGGER.Error(err)
-		response.Failed(c, http.StatusInternalServerError)
-		return
-	}
-
-	// 裁剪之后的图片进行ocr识别
-	global.BANK_LOGGER.Debug("start ocring")
-	texts, err := service.OcrTextFromImages(imgs, contenttype, r.OcrBase)
-	if err != nil {
-		global.BANK_LOGGER.Error(err)
-		response.Failed(c, http.StatusInternalServerError)
-		return
-	}
-	global.BANK_LOGGER.Debug("end ocring ok")
-
-	if r.HOCRMode {
-		response.OkWithPureData(c, texts)
-	} else {
-		response.OkWithData(c, texts)
-	}
-}
-
 func Base64(c *gin.Context) {
 	var r request.Base64Request
 	if err := c.ShouldBind(&r); err != nil {
@@ -215,7 +141,7 @@ func Base64(c *gin.Context) {
 	}
 
 	// 确保是合法的content-type
-	base64Str, isPdf, err := service.EnsureContentType(r.Base64)
+	base64Str, isPdf, _, err := service.EnsureContentType(r.Base64)
 	if err != nil {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
 		return
@@ -274,19 +200,48 @@ func Base64(c *gin.Context) {
 	}
 }
 
-func findContenType(r string) string {
+func ScanCropBase64(c *gin.Context) {
+	var r request.Base64WithPixelPointRequest
+	if err := c.ShouldBind(&r); err != nil {
+		response.Failed(c, http.StatusBadRequest)
+		return
+	}
 
-	i := strings.Index(r, "png")
-	if i != -1 {
-		return "image/png"
+	// 确保是合法的content-type
+	base64Str, isPdf, contentType, err := service.EnsureContentType(r.Base64)
+	if err != nil || isPdf {
+		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+		return
 	}
-	i = strings.Index(r, "jpeg")
-	if i != -1 {
-		return "image/jpeg"
+
+	buf, err := base64.StdEncoding.DecodeString(base64Str)
+	if err != nil {
+		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+		return
 	}
-	i = strings.Index(r, "jpg")
-	if i != -1 {
-		return "image/jpeg"
+
+	upload := bytes.NewReader(buf)
+	// 针对像素坐标点进行裁剪并灰度化
+	imgs, err := service.CropAndGrayImage(upload, r.MatrixPixels)
+	if err != nil {
+		global.BANK_LOGGER.Error(err)
+		response.Failed(c, http.StatusInternalServerError)
+		return
 	}
-	return ""
+
+	// 裁剪之后的图片进行ocr识别
+	global.BANK_LOGGER.Debug("start ocring")
+	texts, err := service.OcrTextFromImages(imgs, contentType, r.OcrBase)
+	if err != nil {
+		global.BANK_LOGGER.Error(err)
+		response.Failed(c, http.StatusInternalServerError)
+		return
+	}
+	global.BANK_LOGGER.Debug("end ocring ok")
+
+	if r.HOCRMode {
+		response.OkWithPureData(c, texts)
+	} else {
+		response.OkWithData(c, texts)
+	}
 }
