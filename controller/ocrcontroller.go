@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"bank-ocr/global"
 	"bank-ocr/global/response"
@@ -224,15 +225,19 @@ func Base64(c *gin.Context) {
 	var finalData interface{}
 	if isPdf {
 		// pdf分页转成png，并获取[][]byte
+		start := time.Now()
+		global.BANK_LOGGER.Info("[START]pdf转成图片并识别成[][]byte开始")
 		bufArray, err := service.PdfToImgsThenGetBytes(base64Str)
 		if err != nil {
 			global.BANK_LOGGER.Error(err)
 			response.Failed(c, http.StatusInternalServerError)
 			return
 		}
-		global.BANK_LOGGER.Info("bufArray=", bufArray, "err=", err)
+		global.BANK_LOGGER.Info("[END]pdf转成图片并识别成[][]byte耗时", time.Since(start))
 
 		// ocr识别
+		start = time.Now()
+		global.BANK_LOGGER.Info("[START]OCR识别[][]byte成[]string开始")
 		var texts []string
 		for _, buf := range bufArray {
 			text, err := service.OcrTextFromBytes(r.OcrBase, buf)
@@ -243,7 +248,7 @@ func Base64(c *gin.Context) {
 			}
 			texts = append(texts, text)
 		}
-		global.BANK_LOGGER.Info("识别出来的字符串=", texts)
+		global.BANK_LOGGER.Info("[END]OCR识别[][]byte成[]string耗时", time.Since(start))
 		finalData = texts
 	} else {
 		// 图片的base64走的逻辑
@@ -273,15 +278,15 @@ func findContenType(r string) string {
 
 	i := strings.Index(r, "png")
 	if i != -1 {
-		return  "image/png"
+		return "image/png"
 	}
 	i = strings.Index(r, "jpeg")
 	if i != -1 {
-		return   "image/jpeg"
+		return "image/jpeg"
 	}
 	i = strings.Index(r, "jpg")
 	if i != -1 {
-		return   "image/jpeg"
+		return "image/jpeg"
 	}
 	return ""
 }

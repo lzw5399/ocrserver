@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/disintegration/imaging v1.6.2
 	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
+	github.com/gen2brain/go-fitz v0.0.0-20190716092309-62357ab3d4a9
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-openapi/spec v0.19.9 // indirect
@@ -35,6 +36,5 @@ require (
 	golang.org/x/sys v0.0.0-20201005065044-765f4ea38db3 // indirect
 	golang.org/x/tools v0.0.0-20201002184944-ecd9fd270d5d // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
-	gopkg.in/gographics/imagick.v2 v2.6.0
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )

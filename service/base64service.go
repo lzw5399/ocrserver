@@ -12,7 +12,6 @@ import (
 	"os"
 	"strings"
 
-	"bank-ocr/global"
 	"bank-ocr/util"
 
 	"github.com/satori/go.uuid"
@@ -54,7 +53,9 @@ func PdfToImgsThenGetBytes(base64 string) ([][]byte, error) {
 	// pdf分页转成png
 	dirToSave, _ := os.Getwd()
 	imgs, err := util.PdfToImgs(filePath, dirToSave)
-	global.BANK_LOGGER.Info("util.PdfToImgs=", imgs)
+	if err != nil {
+		return nil, err
+	}
 	defer func() {
 		for _, path := range imgs {
 			os.Remove(path)
@@ -65,7 +66,6 @@ func PdfToImgsThenGetBytes(base64 string) ([][]byte, error) {
 	var finalArray [][]byte
 	for _, imgPath := range imgs {
 		byteArray, err := ioutil.ReadFile(imgPath)
-		global.BANK_LOGGER.Info("ioutil.ReadFile=", byteArray)
 		if err != nil {
 			return nil, err
 		}
