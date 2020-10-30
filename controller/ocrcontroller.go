@@ -37,7 +37,7 @@ func ScanFile(c *gin.Context) {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_IMG_TYPE_MSG)
 		return
 	}
-	upload.Close()
+	defer upload.Close()
 
 	// 确保file类型是支持的image类型
 	valid, contentType, err := service.EnsureFileType(upload)
