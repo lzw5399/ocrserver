@@ -95,6 +95,13 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 			return "", err
 		}
 	}
+	if req.PreserveInterwordSpaces {
+		if err:= client.SetVariable("preserve_interword_spaces","1");err!=nil{
+			return "", err
+		}
+	}
+
+
 
 	var text string
 	if req.HOCRMode {

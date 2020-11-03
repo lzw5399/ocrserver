@@ -33,6 +33,7 @@ type OcrBase struct {
 	Whitelist    string `form:"whitelist" json:"whitelist"`
 	HOCRMode     bool   `form:"hocrMode" json:"hocrMode"`
 	TrimLineFeed bool   `form:"trimLineFeed" json:"trimLineFeed"`
+	PreserveInterwordSpaces bool `form:"PreserveInterwordSpaces" json:"preserveInterwordSpaces"`
 }
 
 // 两个像素坐标点能圈出一个矩阵
