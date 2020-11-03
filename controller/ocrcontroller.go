@@ -10,8 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"regexp"
-	"strings"
+	"time"
 
 	"bank-ocr/global"
 	"bank-ocr/global/response"
@@ -23,7 +22,7 @@ import (
 
 const (
 	INVALID_IMG_TYPE_MSG = "invalid file or unsupported file type. Only support .jpg .jpeg .png .gif .tiff, please double check!"
-	INVALID_BASE64_MSG   = "invalid BASE64 string, please double check!"
+	INVALID_BASE64_MSG   = "invalid or unsupported BASE64 file type, please double check!"
 )
 
 func ScanFile(c *gin.Context) {
@@ -38,7 +37,7 @@ func ScanFile(c *gin.Context) {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_IMG_TYPE_MSG)
 		return
 	}
-	upload.Close()
+	defer upload.Close()
 
 	// 确保file类型是支持的image类型
 	valid, contentType, err := service.EnsureFileType(upload)
@@ -141,26 +140,63 @@ func Base64(c *gin.Context) {
 		return
 	}
 
-	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
-	buf, err := base64.StdEncoding.DecodeString(r.Base64)
+	// 确保是合法的content-type
+	base64Str, isPdf, _, err := service.EnsureContentType(r.Base64)
 	if err != nil {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
 		return
 	}
 
-	// ocr识别[]byte
-	text, err := service.OcrTextFromBytes(r.OcrBase, buf)
-	if err != nil {
-		global.BANK_LOGGER.Error(err)
-		response.Failed(c, http.StatusInternalServerError)
-		return
+	// 一般的image返回的结果是string, pdf的话会是[]string
+	var finalData interface{}
+	if isPdf {
+		// pdf分页转成png，并获取[][]byte
+		start := time.Now()
+		global.BANK_LOGGER.Info("[START]pdf转成图片并识别成[][]byte开始")
+		bufArray, err := service.PdfToImgsThenGetBytes(base64Str)
+		if err != nil {
+			global.BANK_LOGGER.Error(err)
+			response.Failed(c, http.StatusInternalServerError)
+			return
+		}
+		global.BANK_LOGGER.Info("[END]pdf转成图片并识别成[][]byte耗时", time.Since(start))
+
+		// ocr识别
+		start = time.Now()
+		global.BANK_LOGGER.Info("[START]OCR识别[][]byte成[]string开始")
+		var texts []string
+		for _, buf := range bufArray {
+			text, err := service.OcrTextFromBytes(r.OcrBase, buf)
+			if err != nil {
+				global.BANK_LOGGER.Error(err)
+				response.Failed(c, http.StatusInternalServerError)
+				return
+			}
+			texts = append(texts, text)
+		}
+		global.BANK_LOGGER.Info("[END]OCR识别[][]byte成[]string耗时", time.Since(start))
+		finalData = texts
+	} else {
+		// 图片的base64走的逻辑
+		buf, err := base64.StdEncoding.DecodeString(base64Str)
+		if err != nil {
+			response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+			return
+		}
+
+		// ocr识别[]byte
+		finalData, err = service.OcrTextFromBytes(r.OcrBase, buf)
+		if err != nil {
+			global.BANK_LOGGER.Error(err)
+			response.Failed(c, http.StatusInternalServerError)
+			return
+		}
 	}
 
 	if r.HOCRMode {
-		response.OkWithPureData(c, text)
+		response.OkWithPureData(c, finalData)
 	} else {
-		response.OkWithData(c, text)
+		response.OkWithData(c, finalData)
 	}
 }
 
@@ -170,11 +206,15 @@ func ScanCropBase64(c *gin.Context) {
 		response.Failed(c, http.StatusBadRequest)
 		return
 	}
-	contenttype := findContenType(r.Base64)
 
-	// 确保是合法的base64 并解码成[]byte
-	r.Base64 = regexp.MustCompile("data:image(.*);base64,").ReplaceAllString(r.Base64, "")
-	buf, err := base64.StdEncoding.DecodeString(r.Base64)
+	// 确保是合法的content-type
+	base64Str, isPdf, contentType, err := service.EnsureContentType(r.Base64)
+	if err != nil || isPdf {
+		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
+		return
+	}
+
+	buf, err := base64.StdEncoding.DecodeString(base64Str)
 	if err != nil {
 		response.FailWithMsg(c, http.StatusBadRequest, INVALID_BASE64_MSG)
 		return
@@ -191,7 +231,7 @@ func ScanCropBase64(c *gin.Context) {
 
 	// 裁剪之后的图片进行ocr识别
 	global.BANK_LOGGER.Debug("start ocring")
-	texts, err := service.OcrTextFromImages(imgs, contenttype, r.OcrBase)
+	texts, err := service.OcrTextFromImages(imgs, contentType, r.OcrBase)
 	if err != nil {
 		global.BANK_LOGGER.Error(err)
 		response.Failed(c, http.StatusInternalServerError)
@@ -204,21 +244,4 @@ func ScanCropBase64(c *gin.Context) {
 	} else {
 		response.OkWithData(c, texts)
 	}
-}
-
-func findContenType(r string) string {
-
-	i := strings.Index(r, "png")
-	if i != -1 {
-		return  "image/png"
-	}
-	i = strings.Index(r, "jpeg")
-	if i != -1 {
-		return   "image/jpeg"
-	}
-	i = strings.Index(r, "jpg")
-	if i != -1 {
-		return   "image/jpeg"
-	}
-	return ""
 }

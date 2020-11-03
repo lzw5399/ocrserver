@@ -6,3 +6,5 @@ bank-ocr
 bank-ocr.exe
 log
 appsettings.*.yaml
+*.pdf
+*.png

@@ -20,6 +20,7 @@ import (
 	"bank-ocr/model/response"
 
 	"github.com/otiai10/gosseract/v2"
+	uuid "github.com/satori/go.uuid"
 )
 
 // 从 image.Image 获取 string
@@ -114,7 +115,10 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 	}
 
 	if req.TrimLineFeed {
+		uid := uuid.NewV4().String()
+		text = strings.Replace(text, "\n\n", uid, -1)
 		text = strings.Replace(text, "\n", "", -1)
+		text = strings.Replace(text, uid, "\n\n", -1)
 	}
 
 	return text, nil
