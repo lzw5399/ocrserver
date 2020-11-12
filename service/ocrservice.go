@@ -96,6 +96,11 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 			return "", err
 		}
 	}
+	if req.PreserveInterwordSpaces {
+		if err := client.SetVariable("preserve_interword_spaces", "1"); err != nil {
+			return "", err
+		}
+	}
 
 	var text string
 	if req.HOCRMode {
@@ -113,6 +118,8 @@ func OcrTextFromBytes(req request.OcrBase, bytes []byte) (string, error) {
 		text = strings.Replace(text, "\n", "", -1)
 		text = strings.Replace(text, uid, "\n\n", -1)
 	}
+
+	global.BANK_LOGGER.Info("扫描结果=\n" + text)
 
 	return text, nil
 }
